@@ -37,3 +37,7 @@ lerna-debug.log*
 # Environment
 .env
 *.env
+
+# Prisma
+prisma/backup/
+prisma/schema.prisma

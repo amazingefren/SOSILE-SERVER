@@ -1,0 +1,26 @@
+model Post {
+  id            Int       @id       @default(autoincrement())
+  content       String
+  date          DateTime  @default(now())
+  updated       DateTime  @default(now())
+  history       PostHistory[]
+  author        User      @relation(fields: [authorId], references[id])
+  authorId      Int
+  likes         Likes[]
+  interactions  Int       @default(0)
+  replies       Json?
+}
+
+model PostHistory {
+  id        Int       @id @default(autoincrement())
+  parent    Post      @relation(fields: [parentId], references[id])
+  parentId  Int
+  content   String
+  date      DateTime
+}
+
+model Likes {
+  id        Int       @id @default(autoincrement())
+  users     User[] @relation(fields:[userIds], references:[id])
+  userIds   Int[]
+}

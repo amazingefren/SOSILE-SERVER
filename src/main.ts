@@ -27,7 +27,5 @@ async function bootstrap() {
   await app.listen(PORT).then(() => {
     logger.log('Started on port: ' + PORT);
   });
-  // Will not be catching errors from here
-  // This is so that logging context is set properly
 }
 bootstrap();
