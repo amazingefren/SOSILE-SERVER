@@ -30,7 +30,8 @@ def generate():
         with open(filename, 'r') as f:
             for line in f:
                 if line.split():
-                    if not line.startswith('#'):
+                    test = line.strip()
+                    if not test.startswith('//'):
                         final.write(line) 
     print('Done...')
     # sys.exit(1)
