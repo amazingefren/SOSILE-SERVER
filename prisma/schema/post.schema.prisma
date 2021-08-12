@@ -1,26 +1,55 @@
+// https://ftpdocs.broadcom.com/cadocs/0/e002961e.pdf
 model Post {
-  id            Int       @id       @default(autoincrement())
+  // Base
+  id            Int       @id @default(autoincrement())
   content       String
   date          DateTime  @default(now())
   updated       DateTime  @default(now())
+
+  // Post History
   history       PostHistory[]
-  author        User      @relation(fields: [authorId], references[id])
-  authorId      Int
-  likes         Likes[]
-  interactions  Int       @default(0)
-  replies       Json?
+
+  // Relations
+  likes         PostLikes[]   @relation(name:"likedBy")
+  replies       PostReply[]   @relations(name: "repliedBy")
+
+  // User Relations
+  author        User?     @relation(fields: [authorId], references: [id])
+  authorId      Int?
 }
 
 model PostHistory {
+  // Base
   id        Int       @id @default(autoincrement())
-  parent    Post      @relation(fields: [parentId], references[id])
-  parentId  Int
   content   String
   date      DateTime
+
+  // Relations
+  parent    Post?   @relation(fields: [parentId], references: [id])
+  parentId  Int?
 }
 
-model Likes {
-  id        Int       @id @default(autoincrement())
-  users     User[] @relation(fields:[userIds], references:[id])
-  userIds   Int[]
+model PostReply {
+  id      Int     @id @default(autoincrement())
+  content String
+  
+  // User -> Reply
+  user    User @relation(name: "repliedBy", fields: [userId], references: [id])
+  userId  Int
+
+  // Post -> Reply
+  post    Post @relation(name: "userReply", fields: [postId], references: [id])
+  postId
+
+  likes   PostLike[]  @relationship(name: "likedBy")
+  replies PostReply[]
+}
+
+model PostLike {
+  id      Int       @id @default(autoincrement())
+
+  user    User @relation(name: "likedBy", fields:[userId], references:[id])
+  userId  Int
+  post    Post @relation(name: "userLiked", fields:[postId], references: [id])
+  postId  Int
 }

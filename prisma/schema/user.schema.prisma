@@ -1,11 +1,19 @@
+// https://ftpdocs.broadcom.com/cadocs/0/e002961e.pdf
 model User {
   id        Int     @id   @default(autoincrement())
   username  String  @unique
   email     String  @unique
-  likes     Likes[]
+  
   role      Role    @default(USER)
+
+  // User Relations
   posts     Post[]
   profile   UserProfile?
+
+  // User -> Liked Posts
+  // User -> Replied Posts
+  likes     Post[]    @relation(name: "userLiked")
+  replies   Post[]   @relation(name: "userReply")
 }
 
 model UserProfile {
