@@ -13,7 +13,9 @@ model User {
   // User -> Liked Posts
   // User -> Replied Posts
   likes     Post[]    @relation(name: "userLiked")
-  replies   Post[]   @relation(name: "userReply")
+  
+  // Relation? WIP
+  replies   Post[]    @relation(name: "repliedBy")
 }
 
 model UserProfile {

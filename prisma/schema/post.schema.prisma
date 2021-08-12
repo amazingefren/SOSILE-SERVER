@@ -11,7 +11,12 @@ model Post {
 
   // Relations
   likes         PostLikes[]   @relation(name:"likedBy")
-  replies       PostReply[]   @relations(name: "repliedBy")
+
+  // Children
+  replies       Post[] @relation(name: "repliedBy", fields: [repliesId], references: [id])
+  repliesId     Int[]
+  parent        Post?  @relation(fields: [parentId], references: [id])
+  parentId      Int
 
   // User Relations
   author        User?     @relation(fields: [authorId], references: [id])
@@ -29,23 +34,23 @@ model PostHistory {
   parentId  Int?
 }
 
-model PostReply {
-  id      Int     @id @default(autoincrement())
-  content String
-  
-  // User -> Reply
-  user    User @relation(name: "repliedBy", fields: [userId], references: [id])
-  userId  Int
+// model PostReply {
+//   id      Int     @id @default(autoincrement())
+//   content String
+//   
+//   // User -> Reply
+//   user    User @relation(name: "repliedBy", fields: [userId], references: [id])
+//   userId  Int
+// 
+//   // Post -> Reply
+//   post    Post @relation(name: "userReply", fields: [postId], references: [id])
+//   postId
+// 
+//   likes   PostLike[]  @relation(name: "likedBy")
+//   replies PostReply[] @relation("")
+// }
 
-  // Post -> Reply
-  post    Post @relation(name: "userReply", fields: [postId], references: [id])
-  postId
-
-  likes   PostLike[]  @relationship(name: "likedBy")
-  replies PostReply[]
-}
-
-model PostLike {
+model PostLikes {
   id      Int       @id @default(autoincrement())
 
   user    User @relation(name: "likedBy", fields:[userId], references:[id])
