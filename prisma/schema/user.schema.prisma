@@ -12,10 +12,13 @@ model User {
 
   // User -> Liked Posts
   // User -> Replied Posts
-  likes     Post[]    @relation(name: "userLiked")
+  likes     Post[]    @relation(name: "likedBy")
   
+  replies      PostReply[] @relation("repliedBy")
+
   // Relation? WIP
-  replies   Post[]    @relation(name: "repliedBy")
+  // replies   Post[]    @relation("repliedBy", fields: [replyId], references: [id])
+  // replyId   Int
 }
 
 model UserProfile {

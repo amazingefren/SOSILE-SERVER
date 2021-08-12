@@ -10,17 +10,29 @@ model Post {
   history       PostHistory[]
 
   // Relations
-  likes         PostLikes[]   @relation(name:"likedBy")
+  likedIds      Int
+  likes         User[]   @relation("likedBy", fields: [likedIds], references: [id])
 
   // Children
-  replies       Post[] @relation(name: "repliedBy", fields: [repliesId], references: [id])
-  repliesId     Int[]
-  parent        Post?  @relation(fields: [parentId], references: [id])
-  parentId      Int
+  //parentId       Int?
+  //parent         Post?    @relation("repliedBy", fields: [parentId], references: [id])
+  //replies        Post[]   @relation("repliedBy")
+
+  replies       PostReply[] @relation("replied")
 
   // User Relations
-  author        User?     @relation(fields: [authorId], references: [id])
-  authorId      Int?
+  author        User    @relation(fields: [authorId], references: [id])
+  authorId      Int
+}
+
+model PostReply {
+  id      Int @id @default(autoincrement())
+
+  user    User @relation("repliedBy", fields: [userId], references: [id])
+  userId  Int
+
+  post    Post @relation("replied", fields: [postId], references:[id])
+  postId  Int
 }
 
 model PostHistory {
@@ -34,27 +46,25 @@ model PostHistory {
   parentId  Int?
 }
 
-// model PostReply {
-//   id      Int     @id @default(autoincrement())
-//   content String
-//   
-//   // User -> Reply
-//   user    User @relation(name: "repliedBy", fields: [userId], references: [id])
-//   userId  Int
-// 
-//   // Post -> Reply
-//   post    Post @relation(name: "userReply", fields: [postId], references: [id])
-//   postId
-// 
-//   likes   PostLike[]  @relation(name: "likedBy")
-//   replies PostReply[] @relation("")
-// }
 
-model PostLikes {
-  id      Int       @id @default(autoincrement())
+//model PostReply {
+//  id      Int     @id @default(autoincrement())
+//  // Post -> User
+//  user    User @relation(name: "repliedBy", fields: [userId], references: [id])
+//  userId  Int
+//  // User -> Post
+//  post    Post @relation(name: "userReply", fields: [postId], references: [id])
+//  postId  Int
+//  // Post -> Post
+//  parent        Post   @relation(fields: [parentId], references: [id])
+//  parentId      Int
+//}
 
-  user    User @relation(name: "likedBy", fields:[userId], references:[id])
-  userId  Int
-  post    Post @relation(name: "userLiked", fields:[postId], references: [id])
-  postId  Int
-}
+//model PostLikes {
+//  id      Int       @id @default(autoincrement())
+//
+//  user    User @relation(name: "likedBy", fields:[userId], references:[id])
+//  userId  Int
+//  post    Post @relation(name: "userLiked", fields:[postId], references: [id])
+//  postId  Int
+//}
