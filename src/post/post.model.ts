@@ -1,5 +1,5 @@
 import { ObjectType, Field } from '@nestjs/graphql';
-import { User } from '../user/user.model'
+import { User } from '../user/user.model';
 import 'reflect-metadata';
 
 @ObjectType()
@@ -7,11 +7,11 @@ export class Post {
   @Field(() => Number)
   id: number;
 
-  @Field(()=>User)
+  @Field(() => User)
   author: User;
 
-  @Field(()=>Number)
-  authorId: number
+  @Field(() => Number)
+  authorId: number;
 
   @Field(() => String)
   content: string;
@@ -25,13 +25,13 @@ export class Post {
   @Field(() => [PostHistory])
   history: PostHistory[];
 
-  @Field(()=>[User])
+  @Field(() => [User])
   likes: User[];
 
-  @Field(()=>[Number])
+  @Field(() => [Number])
   likedIds: number[];
 
-  @Field(()=>[Post])
+  @Field(() => [Post])
   replies: Post[];
 }
 
@@ -44,9 +44,9 @@ export class PostHistory {
   content: string;
 
   /* 1 parent, or multiple: can be swapped later in relation to post.schema.ts
-  * parent: Post + parentId: Post.id (aka number)?
-  * or: parent => number || parent => post || parentId => number
-  */
+   * parent: Post + parentId: Post.id (aka number)?
+   * or: parent => number || parent => post || parentId => number
+   */
   @Field(() => Post)
   parent: Post;
 }
