@@ -22,7 +22,7 @@ import configuration from './config/configuration';
     GraphQLModule.forRoot({
       autoSchemaFile: require('path').join(process.cwd(), 'src/schema.gql'),
       debug: true,
-      playground: false
+      playground: false,
     }),
   ],
   controllers: [AppController],

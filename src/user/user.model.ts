@@ -1,10 +1,20 @@
 import 'reflect-metadata';
-import { Field, InputType, Int, ObjectType } from '@nestjs/graphql';
+import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { Post } from '../post/post.model';
 import { IsEmail, IsString, Length } from 'class-validator';
 import { PostReply } from '@prisma/client';
 
-type Role = 'USER' | 'ADMIN';
+@ObjectType()
+export class UserProfile {
+  @Field(() => Int)
+  id: number;
+
+  @Field(() => String)
+  biography: string;
+
+  @Field(() => Number)
+  userId: number;
+}
 
 @ObjectType()
 export class User {
@@ -17,49 +27,16 @@ export class User {
   username: string;
 
   @Field()
-  // @IsEmail()
-  email: string;
-
-  // Auth Resolver?
-  @Field(() => String, { nullable: true })
-  @IsString()
-  role?: Role;
-
-  @Field(() => UserProfile)
-  profile: UserProfile;
-
-  @Field(() => [Post])
-  posts: Post[];
-
-  @Field(() => [Post])
-  likes: Post[];
-  replies: PostReply[];
-}
-
-@ObjectType()
-export class UserProfile {
-  @Field(() => Int)
-  id: number;
-  @Field(() => String)
-  biography: string;
-
-  @Field(() => User)
-  user: User;
-
-  @Field(() => Number)
-  userId: number;
-}
-
-@InputType()
-export class UserCreateInput {
-  @Field()
   @IsEmail()
   email: string;
 
-  @Field()
-  @Length(1, 16)
-  username: string;
+  @Field(() => UserProfile, { nullable: true })
+  profile?: UserProfile;
 
-  @Field()
-  password: string;
+  @Field(() => [Post], { nullable: true })
+  posts?: Post[];
+
+  @Field(() => [Post], { nullable: true })
+  likes?: Post[];
+  replies?: PostReply[];
 }

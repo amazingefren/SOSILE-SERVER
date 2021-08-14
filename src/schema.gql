@@ -2,22 +2,60 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type Post {
+  id: Float!
+  author: User!
+  authorId: Float!
+  content: String!
+  date: DateTime!
+  updated: DateTime!
+  history: [PostHistory!]!
+  likes: [User!]!
+  likedIds: [Float!]!
+  replies: [Post!]!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type PostHistory {
+  id: Float!
+  content: String!
+  parent: Post!
+}
+
+type UserProfile {
+  id: Int!
+  biography: String!
+  userId: Float!
+}
+
 type User {
   id: Int!
   username: String!
   email: String!
-  role: String
+  profile: UserProfile
+  posts: [Post!]
+  likes: [Post!]
 }
 
 type Query {
   debugUser: User!
+  AuthLoginUser(data: AuthLoginUserInput!): User!
+}
+
+input AuthLoginUserInput {
+  username: String!
+  password: String!
 }
 
 type Mutation {
-  register(data: UserCreateInput!): User!
+  AuthRegisterUser(data: AuthRegisterUserInput!): User!
 }
 
-input UserCreateInput {
+input AuthRegisterUserInput {
   email: String!
   username: String!
   password: String!
