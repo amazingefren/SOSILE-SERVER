@@ -7,6 +7,10 @@ model User {
   
   role      Role    @default(USER)
 
+
+  // Sessions / RT
+  sessions  RToken[]
+
   // User Relations
   posts     Post[]
   profile   UserProfile?
