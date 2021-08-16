@@ -2,9 +2,9 @@ import { Args, Context, GqlContextType, GqlExecutionContext, GraphQLExecutionCon
 import { AuthLoginUserInput, AuthRegisterUserInput } from './auth.model';
 import { AuthService } from './auth.service';
 import { User } from '../user/user.model';
-import { BadRequestException, ExecutionContext, UseInterceptors } from '@nestjs/common'
-import { LoggingInterceptor } from './interceptors/cookie.interceptor';
+import { BadRequestException, ExecutionContext, UseGuards, UseInterceptors } from '@nestjs/common'
 import { FastifyRequest, FastifyReply } from 'fastify';
+import { RoleGuard } from './guards/role.guard';
 
 @Resolver()
 export class AuthResolver {
@@ -22,7 +22,7 @@ export class AuthResolver {
   }
 
   @Query(() => User)
-  // @UseGuards(RoleGuard)
+  @UseGuards(RoleGuard)
   async AuthLoginUser(@Args('data') data: AuthLoginUserInput) {
     try {
       return this.authService.LoginUser(data)
