@@ -35,8 +35,10 @@ export class AuthResolver {
   async AuthRefresh(
     @Context() {req, res}: {req: FastifyRequest, res: FastifyReply}
   ){
-    console.log(req.body)
+    console.log(req.cookies)
     res.header('hi','hi')
+    res.cookie('hi','hi')
+    res.clearCookie('hi')
     return true 
   }
 }

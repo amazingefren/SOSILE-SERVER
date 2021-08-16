@@ -7,6 +7,7 @@ import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
 import { Logger } from '@nestjs/common';
 import { ValidationPipe } from '@nestjs/common'
+import fastifyCookie from 'fastify-cookie';
 
 
 async function bootstrap() {
@@ -20,6 +21,11 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const PORT = configService.get('PORT');
   const LOGLEVEL = configService.get('LOG_LEVEL');
+  const COOKIESECRET = configService.get('COOKIE_SECRET')
+
+  app.register(fastifyCookie, {
+    secret: COOKIESECRET
+  })
 
   // Initalize Logger
   app.useLogger([LOGLEVEL]);
