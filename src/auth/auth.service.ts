@@ -1,6 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service'
-import { Prisma } from '@prisma/client'
 import { AuthLoginUserInput, AuthRegisterUserInput } from './auth.model';
 import { User } from '../user/user.model'
 
@@ -18,16 +17,16 @@ export class AuthService {
   ){}
 
   async RegisterUser(data: AuthRegisterUserInput): Promise<Boolean | Error>{
-    try{
-      await this.prisma.user.create({data})
-      return true
-    }finally{}
+    await this.prisma.user.create({data})
+    return true
   }
 
   async LoginUser(data: AuthLoginUserInput): Promise<User | Error>{
-    try{
-      const user: User = await this.prisma.user.findUnique({where: {username: data.username}})
-      return user
-    } finally {}
+    const {password, ...user} = await this.prisma.user.findUnique({where: {username: data.username}})
+    if (user && data.password == password){
+      return user as User 
+    } else {
+      throw new UnauthorizedException()
+    }
   }
 }
