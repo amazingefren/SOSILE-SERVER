@@ -2,7 +2,8 @@ import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { AuthLoginUserInput, AuthRegisterUserInput } from './auth.model';
 import { AuthService } from './auth.service';
 import { User } from '../user/user.model';
-import { BadRequestException } from '@nestjs/common'
+import { BadRequestException, UseGuards } from '@nestjs/common'
+import { RoleGuard } from './guards/role.guard';
 
 @Resolver()
 export class AuthResolver {
@@ -20,6 +21,7 @@ export class AuthResolver {
   }
 
   @Query(() => User)
+  @UseGuards(RoleGuard)
   async AuthLoginUser(@Args('data') data: AuthLoginUserInput) {
     try {
       return this.authService.LoginUser(data)
