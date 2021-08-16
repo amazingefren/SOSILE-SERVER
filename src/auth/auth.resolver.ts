@@ -31,14 +31,28 @@ export class AuthResolver {
     }
   }
 
+  // When a users access token is no longer valid
+  // sosile-client will then refresh that token here
+  // so that continuous operation resumes
+  //
+  // I can then use this to 
+  //  1. Resign access token
+  //  2. Verify refresh_token with users real sessions
   @Mutation(()=>Boolean)
   async AuthRefresh(
     @Context() {req, res}: {req: FastifyRequest, res: FastifyReply}
   ){
-    console.log(req.cookies)
-    res.header('hi','hi')
-    res.cookie('hi','hi')
-    res.clearCookie('hi')
-    return true 
+    console.log(req.cookies.hi)
+    if (req.cookies.refresh_token){
+      // verify refresh_token from db.user.sessions
+        // if false, clear refresh_token and return false
+        // if true gen new access token
+      res.cookie('access_token','new_access_token')
+      return true
+    } else {
+      res.clearCookie('access_token')
+      res.clearCookie('refresh_token')
+      return false
+    }
   }
 }
