@@ -6,6 +6,8 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
 import { Logger } from '@nestjs/common';
+import { ValidationPipe } from '@nestjs/common'
+
 
 async function bootstrap() {
   // Create NestJS Fastify
@@ -22,6 +24,8 @@ async function bootstrap() {
   // Initalize Logger
   app.useLogger([LOGLEVEL]);
   const logger = new Logger('Server');
+
+  app.useGlobalPipes(new ValidationPipe({transform: true}))
 
   // Start Server
   await app.listen(PORT).then(() => {

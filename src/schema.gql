@@ -53,6 +53,7 @@ input AuthLoginUserInput {
 
 type Mutation {
   AuthRegisterUser(data: AuthRegisterUserInput!): User!
+  AuthRefresh: Boolean!
 }
 
 input AuthRegisterUserInput {

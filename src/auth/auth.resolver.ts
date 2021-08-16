@@ -1,9 +1,10 @@
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, Context, GqlContextType, GqlExecutionContext, GraphQLExecutionContext, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { AuthLoginUserInput, AuthRegisterUserInput } from './auth.model';
 import { AuthService } from './auth.service';
 import { User } from '../user/user.model';
-import { BadRequestException, UseGuards } from '@nestjs/common'
-import { RoleGuard } from './guards/role.guard';
+import { BadRequestException, ExecutionContext, UseInterceptors } from '@nestjs/common'
+import { LoggingInterceptor } from './interceptors/cookie.interceptor';
+import { FastifyRequest, FastifyReply } from 'fastify';
 
 @Resolver()
 export class AuthResolver {
@@ -21,12 +22,21 @@ export class AuthResolver {
   }
 
   @Query(() => User)
-  @UseGuards(RoleGuard)
+  // @UseGuards(RoleGuard)
   async AuthLoginUser(@Args('data') data: AuthLoginUserInput) {
     try {
       return this.authService.LoginUser(data)
     } catch(e) {
       return e
     }
+  }
+
+  @Mutation(()=>Boolean)
+  async AuthRefresh(
+    @Context() {req, res}: {req: FastifyRequest, res: FastifyReply}
+  ){
+    console.log(req.body)
+    res.header('hi','hi')
+    return true 
   }
 }

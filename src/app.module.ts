@@ -22,6 +22,7 @@ import configuration from './config/configuration';
     GraphQLModule.forRoot({
       autoSchemaFile: require('path').join(process.cwd(), 'src/schema.gql'),
       debug: true,
+      context: ({request, reply}) => ({req: request, res: reply}),
       playground: false,
     }),
   ],
