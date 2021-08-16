@@ -16,7 +16,7 @@ export interface DatabaseConfig{
 export interface AuthConfig{
   atSecret: string; 
   rtSecret: string;
-  saltRounds: string;
+  saltRounds: number;
   cookieSecret: string;
 }
 
@@ -35,7 +35,7 @@ const config = {
   auth: {
     atSecret: process.env.AT_SECRET,
     rtSecret: process.env.RT_SECRET,
-    saltRounds: process.env.SALT_ROUNDS,
+    saltRounds: Number(process.env.SALT_ROUNDS),
     cookieSecret: process.env.COOKIE_SECRET,
   },
 };
