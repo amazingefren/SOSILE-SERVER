@@ -19,10 +19,10 @@ export class AuthService {
     private configService: ConfigService,
   ) {
     if (
-      configService.get<DevelopmentConfig>('development').logLevel != 'verbose'
+      configService.get<DevelopmentConfig>('development').logLevel != 'debug'
     ) {
       // Emit Verbose Logs unless 'verbose' is specified
-      this.logger.verbose = () => {};
+      this.logger.debug = () => {};
     }
     this.CONFIG = this.configService.get<AuthConfig>('auth');
   }
@@ -60,9 +60,12 @@ export class AuthService {
     const isMatch = await bcrypt.compare(data.password, user.password);
 
     if (user && isMatch) {
+      this.logger.verbose('LoginUser matched');
       if (contextRes) {
+        this.logger.verbose('Generating Access Tokens');
         const atoken = this.GenerateAccessToken(user);
         const rtoken = await this.GenerateRefreshToken(user);
+        this.logger.verbose('Assigning Cookies to Response Context');
         contextRes.setCookie('access_token', atoken);
         contextRes.setCookie('refresh_token', rtoken);
       }
@@ -106,7 +109,7 @@ export class AuthService {
    */
   private async GenerateRefreshToken(payload: AuthUser): Promise<string> {
     // Create empty entity relation to payload
-    this.logger.debug('Assigning JWT refresh_token to database');
+    this.logger.verbose('Assigning JWT refresh_token to database');
     const tokenTable = await this.prisma.rToken.create({
       data: {
         user: {
@@ -141,7 +144,7 @@ export class AuthService {
       include: { sessions: true },
     });
     await this.prisma.rToken.deleteMany({ where: { userId: payload.id } });
-    this.logger.verbose(check);
+    this.logger.debug(check);
     // End Development
 
     return final.token;

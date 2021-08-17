@@ -22,16 +22,16 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
       ],
     });
     if (
-      configService.get<DevelopmentConfig>('development').logLevel != 'verbose'
+      configService.get<DevelopmentConfig>('development').logLevel != 'debug'
     ) {
-      this.logger.verbose = () => {};
+      this.logger.debug = () => {};
     }
   }
   private logger = new Logger('PrismaService');
 
   async onModuleInit() {
     this.$on<any>('query', (event: Prisma.QueryEvent) => {
-      this.logger.verbose(
+      this.logger.debug(
         '\x1B[95mQuery: \x1B[96m' +
           event.query +
           ' \x1B[33m+' +
