@@ -7,7 +7,7 @@ import {
 } from './auth.model';
 import { User } from '../user/user.model';
 import { ConfigService } from '@nestjs/config';
-import { AuthConfig } from 'src/config/configuration';
+import { AuthConfig, DevelopmentConfig } from '../config/configuration';
 import { FastifyReply } from 'fastify';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
@@ -18,34 +18,95 @@ export class AuthService {
     private prisma: PrismaService,
     private configService: ConfigService,
   ) {
+    if (
+      configService.get<DevelopmentConfig>('development').logLevel != 'verbose'
+    ) {
+      // Emit Verbose Logs unless 'verbose' is specified
+      this.logger.verbose = () => {};
+    }
     this.CONFIG = this.configService.get<AuthConfig>('auth');
   }
 
-  private readonly logger = new Logger('AuthService');
+  private logger = new Logger('AuthService');
   private CONFIG: AuthConfig;
 
-  // Hash Password
+  /**
+   * Handle User Registration and returns User
+   * @param data AuthRegisterUserInput
+   * @returns Boolean or Error
+   */
+  async RegisterUser(data: AuthRegisterUserInput): Promise<Boolean | Error> {
+    const hashedPassword = await this.HashPassword(data.password);
+    await this.prisma.user.create({
+      data: { ...data, password: hashedPassword },
+    });
+    return true;
+  }
+
+  /**
+   * Handle User Login and Sets Cookies if contextRes is provided
+   * @param data AuthLoginUserInput
+   * @param contextRes? FastifyReply
+   * @returns Promise | User |Error
+   */
+  async LoginUser(
+    data: AuthLoginUserInput,
+    contextRes?: FastifyReply,
+  ): Promise<User | Error> {
+    const user = await this.prisma.user.findUnique({
+      where: { username: data.username },
+    });
+
+    const isMatch = await bcrypt.compare(data.password, user.password);
+
+    if (user && isMatch) {
+      if (contextRes) {
+        const atoken = this.GenerateAccessToken(user);
+        const rtoken = await this.GenerateRefreshToken(user);
+        contextRes.setCookie('access_token', atoken);
+        contextRes.setCookie('refresh_token', rtoken);
+      }
+      return user as User;
+    } else {
+      throw new UnauthorizedException();
+    }
+  }
+
+  /* SECTION: Sessions */
+  /** @todo */
+  async ValidateSession(rtoken: any) {
+    const username = rtoken.username;
+    await this.prisma.user.findUnique({ where: { username } });
+  }
+
+  /** @todo */
+  async ValidateAccess(atoken: any): Promise<Boolean> {
+    // jwt verify
+    console.log(atoken);
+    return true;
+  }
+
+  /* SECTION: Encryption */
+  /**
+   * Hash plain password using bcrypt
+   * @param password string
+   * @returns hashedPassword as string
+   */
   private async HashPassword(password: string) {
     const hash = await bcrypt.hash(password, this.CONFIG.saltRounds);
     return hash;
   }
 
-  // Generate Access JWT Token For Cookie
-  private async GenerateAccessToken(payload: AuthUser) {
-    const token = jwt.sign(
-      {
-        sub: payload.id,
-        role: payload.role,
-      },
-      this.CONFIG.atSecret,
-      { expiresIn: '20s' },
-    );
-    return token;
-  }
-
-  // Generate Refresh JWT Token For Cookie
-  private async GenerateRefreshToken(payload: AuthUser) {
+  /* SECTION: JWT */
+  /**
+   * Generate and Set Refresh Token in Database
+   * @param payload AuthUser
+   * @returns jwtRefreshToken as Promise<string>
+   * @private
+   */
+  private async GenerateRefreshToken(payload: AuthUser): Promise<string> {
     // Create empty entity relation to payload
+    this.logger.debug('Assigning JWT refresh_token to database');
     const tokenTable = await this.prisma.rToken.create({
       data: {
         user: {
@@ -55,7 +116,6 @@ export class AuthService {
         },
       },
     });
-
     // Create JWT Token with previous table identifiers
     const token = jwt.sign(
       {
@@ -67,7 +127,6 @@ export class AuthService {
       this.CONFIG.rtSecret,
       { expiresIn: '2m' },
     );
-
     // Assign JWT Token to empty entity
     const final = await this.prisma.rToken.update({
       where: { id: tokenTable.id },
@@ -76,64 +135,32 @@ export class AuthService {
       },
       select: { token: true },
     });
-    console.log(final.token);
-
     // Start Development
     const check = await this.prisma.user.findUnique({
       where: { username: payload.username },
       include: { sessions: true },
     });
-    console.log(check);
     await this.prisma.rToken.deleteMany({ where: { userId: payload.id } });
+    this.logger.verbose(check);
     // End Development
 
     return final.token;
   }
 
-  /* User */
-  async RegisterUser(data: AuthRegisterUserInput): Promise<Boolean | Error> {
-    const hashedPassword = await this.HashPassword(data.password);
-    await this.prisma.user.create({
-      data: { ...data, password: hashedPassword },
-    });
-    return true;
-  }
-
-  async LoginUser(
-    data: AuthLoginUserInput,
-    contextRes?: FastifyReply,
-  ): Promise<User | Error> {
-    const user = await this.prisma.user.findUnique({
-      where: { username: data.username },
-    });
-
-    // +alot of execution time
-    const isMatch = await bcrypt.compare(data.password, user.password);
-
-    if (user && isMatch) {
-      if (contextRes) {
-        const atoken = await this.GenerateAccessToken(user);
-        const rtoken = await this.GenerateRefreshToken(user);
-        contextRes.setCookie('access_token', atoken);
-        contextRes.setCookie('refresh_token', rtoken);
-      }
-      return user as User;
-    } else {
-      throw new UnauthorizedException();
-    }
-  }
-
-  /* Session */
-  async ValidateSession(rtoken: any) {
-    // temp
-    const username = rtoken.username;
-
-    await this.prisma.user.findUnique({ where: { username } });
-  }
-
-  async ValidateAccess(atoken: any): Promise<Boolean> {
-    // jwt verify
-    console.log(atoken);
-    return true;
+  /**
+   * Generate Access Token
+   * @param payload AuthUser
+   * @returns jwtAccesToken as string
+   */
+  GenerateAccessToken(payload: AuthUser): string {
+    const token = jwt.sign(
+      {
+        sub: payload.id,
+        role: payload.role,
+      },
+      this.CONFIG.atSecret,
+      { expiresIn: '20s' },
+    );
+    return token;
   }
 }
