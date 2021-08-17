@@ -1,11 +1,16 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { AuthLoginUserInput, AuthRegisterUserInput } from './auth.model';
+import {
+  AuthLoginUserInput,
+  AuthRegisterUserInput,
+  AuthUser,
+} from './auth.model';
 import { User } from '../user/user.model';
-import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { AuthConfig } from 'src/config/configuration';
 import { FastifyReply } from 'fastify';
+import * as bcrypt from 'bcrypt';
+import * as jwt from 'jsonwebtoken';
 
 @Injectable()
 export class AuthService {
@@ -26,10 +31,64 @@ export class AuthService {
   }
 
   // Generate Access JWT Token For Cookie
-  private async GenerateAccessToken(payload: any) {}
+  private async GenerateAccessToken(payload: AuthUser) {
+    const token = jwt.sign(
+      {
+        sub: payload.id,
+        role: payload.role,
+      },
+      this.CONFIG.atSecret,
+      { expiresIn: '20s' },
+    );
+    return token;
+  }
 
   // Generate Refresh JWT Token For Cookie
-  private async GenerateRefreshToken(payload: any) {}
+  private async GenerateRefreshToken(payload: AuthUser) {
+    // Create empty entity relation to payload
+    const tokenTable = await this.prisma.rToken.create({
+      data: {
+        user: {
+          connect: {
+            username: payload.username,
+          },
+        },
+      },
+    });
+
+    // Create JWT Token with previous table identifiers
+    const token = jwt.sign(
+      {
+        sub: tokenTable.id,
+        userid: payload.id,
+        name: payload.username,
+        date: tokenTable.timestamp,
+      },
+      this.CONFIG.rtSecret,
+      { expiresIn: '2m' },
+    );
+
+    // Assign JWT Token to empty entity
+    const final = await this.prisma.rToken.update({
+      where: { id: tokenTable.id },
+      data: {
+        token,
+      },
+      select: { token: true },
+    });
+    console.log(final.token);
+
+    // Start Development
+    const check = await this.prisma.user.findUnique({
+      where: { username: payload.username },
+      include: { sessions: true },
+    });
+    console.log(check);
+    await this.prisma.rToken.deleteMany({ where: { userId: payload.id } });
+    // End Development
+
+    return final.token;
+  }
 
   /* User */
   async RegisterUser(data: AuthRegisterUserInput): Promise<Boolean | Error> {
@@ -53,10 +112,10 @@ export class AuthService {
 
     if (user && isMatch) {
       if (contextRes) {
-        this.logger.verbose('Generating Tokens');
-        this.logger.verbose('Assigning Tokens');
-        this.logger.verbose('Applying Cookies');
-        contextRes.setCookie('test', 'test2');
+        const atoken = await this.GenerateAccessToken(user);
+        const rtoken = await this.GenerateRefreshToken(user);
+        contextRes.setCookie('access_token', atoken);
+        contextRes.setCookie('refresh_token', rtoken);
       }
       return user as User;
     } else {
