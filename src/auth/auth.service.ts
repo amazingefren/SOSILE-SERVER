@@ -144,6 +144,7 @@ export class AuthService {
     this.logger.verbose(check);
     // End Development
 
+    console.log('test');
     return final.token;
   }
 
