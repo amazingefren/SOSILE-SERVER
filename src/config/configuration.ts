@@ -1,20 +1,20 @@
 export interface ServerConfig {
   port: number;
   nodeEnv: 'development' | 'production';
-};
+}
 export interface DevelopmentConfig {
-  logLevel: 'log'|'error'|'warn'|'debug'|'verbose';
+  logLevel: 'log' | 'error' | 'warn' | 'debug' | 'verbose';
   graphiql: boolean;
 }
-export interface DatabaseConfig{
+export interface DatabaseConfig {
   name: string;
   host: string;
   user: string;
   password: string;
   port: string;
 }
-export interface AuthConfig{
-  atSecret: string; 
+export interface AuthConfig {
+  atSecret: string;
   rtSecret: string;
   saltRounds: number;
   cookieSecret: string;

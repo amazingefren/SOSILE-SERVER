@@ -17,12 +17,12 @@ import configuration from './config/configuration';
     ConfigModule.forRoot({
       isGlobal: true,
       load: [configuration],
-      cache: true
+      cache: true,
     }),
     GraphQLModule.forRoot({
       autoSchemaFile: require('path').join(process.cwd(), 'src/schema.gql'),
       debug: true,
-      context: ({request, reply}) => ({req: request, res: reply}),
+      context: ({ request, reply }) => ({ req: request, res: reply }),
       playground: false,
     }),
   ],

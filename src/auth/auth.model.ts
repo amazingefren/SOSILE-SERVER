@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { Field, InputType, ObjectType } from '@nestjs/graphql';
 import { IsEmail, IsString, Length } from 'class-validator';
-import { User } from '../user/user.model'
+import { User } from '../user/user.model';
 
 type Role = 'USER' | 'ADMIN';
 
@@ -28,11 +28,11 @@ export class AuthRegisterUserInput {
 }
 
 @InputType()
-export class AuthLoginUserInput{
+export class AuthLoginUserInput {
   @Field()
   @Length(1, 16)
   username: string;
-  
+
   @Field()
   password: string;
 }

@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 @Injectable()
 export class RoleGuard implements CanActivate {
   canActivate(context: ExecutionContext) {
-    console.log(context)
+    console.log(context);
     return true;
   }
 }
