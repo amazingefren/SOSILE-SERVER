@@ -173,9 +173,15 @@ export class AuthService {
    * @param token string
    * @returns boolean
    */
-  ValidateAccessToken(token: string): boolean {
-    jwt.verify(token, this.CONFIG.atSecret, { ignoreExpiration: false });
-    return true;
+  ValidateAccessToken(
+    token: string,
+    opts?: { getPayload: boolean },
+  ): boolean | any {
+    const jwtPayload: any = jwt.verify(token, this.CONFIG.atSecret);
+    if (opts.getPayload) {
+      return jwtPayload;
+    }
+    return token ? true : false;
   }
   /**
    * Verify Refresh_Token
@@ -188,7 +194,7 @@ export class AuthService {
       getUser: boolean;
     },
   ): Promise<boolean | AuthUser> {
-    const jwtPayload: any = jwt.decode(token);
+    const jwtPayload: any = jwt.verify(token, this.CONFIG.rtSecret);
     try {
       const data = await this.prisma.rToken.findUnique({
         where: {

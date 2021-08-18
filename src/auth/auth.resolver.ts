@@ -1,13 +1,4 @@
-import {
-  Args,
-  Context,
-  GqlContextType,
-  GqlExecutionContext,
-  GraphQLExecutionContext,
-  Mutation,
-  Query,
-  Resolver,
-} from '@nestjs/graphql';
+import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
 import {
   AuthLoginUserInput,
   AuthRegisterUserInput,
@@ -15,14 +6,8 @@ import {
 } from './auth.model';
 import { AuthService } from './auth.service';
 import { User } from '../user/user.model';
-import {
-  BadRequestException,
-  UseGuards,
-  // UseGuards,
-} from '@nestjs/common';
+import { BadRequestException, UseGuards } from '@nestjs/common';
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { AuthGuard } from './guards/auth.guard';
-// import { RoleGuard } from './guards/role.guard';
 
 @Resolver()
 export class AuthResolver {
