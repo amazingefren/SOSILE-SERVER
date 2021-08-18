@@ -42,8 +42,25 @@ type User {
 }
 
 type Query {
-  debugUser: User!
+  debugUsers: [User!]!
+  user(include: UserAuthIncludeOpts, where: UserUniqueInput!): User
+  whoAmI(include: UserAuthIncludeOpts): User!
   AuthLoginUser(data: AuthLoginUserInput!): User!
+}
+
+input UserAuthIncludeOpts {
+  followers: Boolean = false
+  following: Boolean = false
+  likes: Boolean = false
+  posts: Boolean = false
+  profile: Boolean = false
+  replies: Boolean = false
+}
+
+input UserUniqueInput {
+  id: Float
+  username: String
+  email: String
 }
 
 input AuthLoginUserInput {

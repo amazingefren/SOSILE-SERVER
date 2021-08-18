@@ -1,8 +1,8 @@
 import 'reflect-metadata';
-import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { Field, InputType, Int, ObjectType } from '@nestjs/graphql';
 import { Post } from '../post/post.model';
 import { IsEmail, IsString, Length } from 'class-validator';
-import { PostReply } from '@prisma/client';
+import { PostReply, Prisma } from '@prisma/client';
 
 @ObjectType()
 export class UserProfile {
@@ -39,4 +39,32 @@ export class User {
   @Field(() => [Post], { nullable: true })
   likes?: Post[];
   replies?: PostReply[];
+}
+
+@InputType()
+export class UserAuthIncludeOpts {
+  @Field()
+  followers?: boolean = false;
+  @Field()
+  following?: boolean = false;
+  @Field()
+  likes?: boolean = false;
+  @Field()
+  posts?: boolean = false;
+  @Field()
+  profile?: boolean = false;
+  @Field()
+  replies?: boolean = false;
+}
+
+@InputType()
+export class UserUniqueInput {
+  @Field({ nullable: true })
+  id?: number;
+
+  @Field({ nullable: true })
+  username?: string;
+
+  @Field({ nullable: true })
+  email?: string;
 }

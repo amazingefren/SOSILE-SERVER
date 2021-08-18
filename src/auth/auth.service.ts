@@ -7,7 +7,11 @@ import {
 } from './auth.model';
 import { User } from '../user/user.model';
 import { ConfigService } from '@nestjs/config';
-import { AuthConfig, DevelopmentConfig } from '../config/configuration';
+import {
+  AuthConfig,
+  DevelopmentConfig,
+  ServerConfig,
+} from '../config/configuration';
 import { FastifyReply } from 'fastify';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
@@ -139,14 +143,12 @@ export class AuthService {
       select: { token: true },
     });
 
-    // Start Development
-    /* const check = await this.prisma.user.findUnique({
-      where: { username: payload.username },
-      include: { sessions: true },
-    });
-    await this.prisma.rToken.deleteMany({ where: { userId: payload.id } });
-    this.logger.debug(check); */
-    // End Development
+    if (
+      this.configService.get<ServerConfig>('server').nodeEnv == 'development'
+    ) {
+      // this.logger.verbose(await this.prisma.user.findUnique({where: {id: payload.id}, include: {sessions: true}}))
+      await this.prisma.rToken.deleteMany({ where: { userId: payload.id } });
+    }
 
     return final.token;
   }
@@ -175,10 +177,10 @@ export class AuthService {
    */
   ValidateAccessToken(
     token: string,
-    opts?: { getPayload: boolean },
+    opts: { getPayload: boolean } = { getPayload: false },
   ): boolean | any {
     const jwtPayload: any = jwt.verify(token, this.CONFIG.atSecret);
-    if (opts.getPayload) {
+    if (opts.getPayload == true) {
       return jwtPayload;
     }
     return token ? true : false;
