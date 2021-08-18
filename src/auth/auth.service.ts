@@ -77,17 +77,17 @@ export class AuthService {
 
   /* SECTION: Sessions */
   /** @todo */
-  async ValidateSession(rtoken: any) {
+  /* async ValidateSession(rtoken: any) {
     const username = rtoken.username;
     await this.prisma.user.findUnique({ where: { username } });
-  }
+  } */
 
   /** @todo */
-  async ValidateAccess(atoken: any): Promise<Boolean> {
+  /* async ValidateAccess(atoken: any): Promise<Boolean> {
     // jwt verify
     console.log(atoken);
     return true;
-  }
+  } */
 
   /* SECTION: Encryption */
   /**
@@ -138,13 +138,14 @@ export class AuthService {
       },
       select: { token: true },
     });
+
     // Start Development
-    const check = await this.prisma.user.findUnique({
+    /* const check = await this.prisma.user.findUnique({
       where: { username: payload.username },
       include: { sessions: true },
     });
     await this.prisma.rToken.deleteMany({ where: { userId: payload.id } });
-    this.logger.debug(check);
+    this.logger.debug(check); */
     // End Development
 
     return final.token;
@@ -165,5 +166,42 @@ export class AuthService {
       { expiresIn: '20s' },
     );
     return token;
+  }
+
+  /**
+   * Verify Access_Token
+   * @param token string
+   * @returns boolean
+   */
+  ValidateAccessToken(token: string): boolean {
+    jwt.verify(token, this.CONFIG.atSecret, { ignoreExpiration: false });
+    return true;
+  }
+  /**
+   * Verify Refresh_Token
+   * @param token string
+   * @returns boolean
+   */
+  async ValidateRefreshToken(
+    token: string,
+    opts?: {
+      getUser: boolean;
+    },
+  ): Promise<boolean | AuthUser> {
+    const jwtPayload: any = jwt.decode(token);
+    try {
+      const data = await this.prisma.rToken.findUnique({
+        where: {
+          id: Number(jwtPayload.sub),
+        },
+        include: { user: opts.getUser },
+      });
+      if (opts.getUser && data.token == token) {
+        return data.user;
+      }
+      return data.token == token ? true : false;
+    } catch (e) {
+      return false;
+    }
   }
 }

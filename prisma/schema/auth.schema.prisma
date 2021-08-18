@@ -2,6 +2,6 @@ model RToken {
   id          Int   @id   @default(autoincrement())
   timestamp   DateTime    @default(now())
   token       String?
-  user        User        @relation(fields: [userId], references: [id])
+  user        User        @relation("UserTokens", fields: [userId], references: [id])
   userId      Int
 }

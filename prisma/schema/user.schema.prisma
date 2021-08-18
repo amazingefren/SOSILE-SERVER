@@ -9,7 +9,7 @@ model User {
 
 
   // Sessions / RT
-  sessions  RToken[]
+  sessions  RToken[] @relation("UserTokens")
 
   // User Relations
   posts     Post[]
