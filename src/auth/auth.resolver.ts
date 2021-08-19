@@ -63,4 +63,17 @@ export class AuthResolver {
       return false;
     }
   }
+
+  @Mutation(() => Boolean)
+  async AuthLogout(
+    @Context() { req, res }: { req: FastifyRequest; res: FastifyReply },
+  ) {
+    const success = await this.authService.wipeToken(req.cookies.refresh_token);
+    if (success) {
+      res.clearCookie('access_token');
+      res.clearCookie('refresh_token');
+      return true;
+    }
+    return false;
+  }
 }

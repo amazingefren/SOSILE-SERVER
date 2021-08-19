@@ -79,20 +79,6 @@ export class AuthService {
     }
   }
 
-  /* SECTION: Sessions */
-  /** @todo */
-  /* async ValidateSession(rtoken: any) {
-    const username = rtoken.username;
-    await this.prisma.user.findUnique({ where: { username } });
-  } */
-
-  /** @todo */
-  /* async ValidateAccess(atoken: any): Promise<Boolean> {
-    // jwt verify
-    console.log(atoken);
-    return true;
-  } */
-
   /* SECTION: Encryption */
   /**
    * Hash plain password using bcrypt
@@ -143,12 +129,12 @@ export class AuthService {
       select: { token: true },
     });
 
-    if (
+    /* if (
       this.configService.get<ServerConfig>('server').nodeEnv == 'development'
     ) {
       // this.logger.verbose(await this.prisma.user.findUnique({where: {id: payload.id}, include: {sessions: true}}))
       await this.prisma.rToken.deleteMany({ where: { userId: payload.id } });
-    }
+    } */
 
     return final.token;
   }
@@ -211,6 +197,23 @@ export class AuthService {
       }
       return data.token == token ? true : false;
     } catch (e) {
+      return false;
+    }
+  }
+
+  async wipeToken(token: string) {
+    try {
+      const jwtPayload: any = jwt.verify(token, this.CONFIG.rtSecret, {
+        ignoreExpiration: true,
+      });
+      await this.prisma.rToken.delete({
+        where: {
+          id: Number(jwtPayload.sub),
+        },
+      });
+      return true;
+    } catch (e) {
+      this.logger.error(e);
       return false;
     }
   }
