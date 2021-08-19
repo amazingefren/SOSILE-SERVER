@@ -49,18 +49,6 @@ export class User {
   followers?: User[];
 }
 
-/* @ObjectType()
-export class Follow {
-  @Field()
-  id: number;
-
-  @Field({ nullable: true })
-  following: User;
-
-  @Field({ nullable: true })
-  follower: User;
-} */
-
 @InputType()
 export class UserAuthIncludeOpts {
   @Field()

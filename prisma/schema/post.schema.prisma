@@ -1,71 +1,30 @@
 // https://ftpdocs.broadcom.com/cadocs/0/e002961e.pdf
 model Post {
-  // Base
   id            Int       @id @default(autoincrement())
   content       String
   date          DateTime  @default(now())
   updated       DateTime  @updatedAt
 
-  // Post History
   history       PostHistory[]
 
-  // Relations
   likes         User[]   @relation("likedBy")
 
-  // Children
-  //parentId       Int?
-  //parent         Post?    @relation("repliedBy", fields: [parentId], references: [id])
-  //replies        Post[]   @relation("repliedBy")
-
+  // CURRENTLY THIS IS DOING 1->1->1
+  // SO REPLY HAS 1 PARENT
+  // AND REPLY HAS 1 REPLY THAT HAS 1 REPLY
   replies       Post[]      @relation(name: "replied")
   parents       Post[]      @relation(name: "replied")
   isReply       Boolean     @default(false)
 
-  // User Relations
   author        User    @relation(fields: [authorId], references: [id])
   authorId      Int
 }
 
-// model PostReply {
-//   id      Int @id @default(autoincrement())
-// 
-//   user    User @relation("repliedBy", fields: [userId], references: [id])
-//   userId  Int
-// 
-//   post    Post @relation("replied", fields: [postId], references:[id])
-//   postId  Int
-// }
-
 model PostHistory {
-  // Base
   id        Int       @id @default(autoincrement())
   content   String
   date      DateTime 
 
-  // Relations
   parent    Post?   @relation(fields: [parentId], references: [id])
   parentId  Int?
 }
-
-
-//model PostReply {
-//  id      Int     @id @default(autoincrement())
-//  // Post -> User
-//  user    User @relation(name: "repliedBy", fields: [userId], references: [id])
-//  userId  Int
-//  // User -> Post
-//  post    Post @relation(name: "userReply", fields: [postId], references: [id])
-//  postId  Int
-//  // Post -> Post
-//  parent        Post   @relation(fields: [parentId], references: [id])
-//  parentId      Int
-//}
-
-//model PostLikes {
-//  id      Int       @id @default(autoincrement())
-//
-//  user    User @relation(name: "likedBy", fields:[userId], references:[id])
-//  userId  Int
-//  post    Post @relation(name: "userLiked", fields:[postId], references: [id])
-//  postId  Int
-//}

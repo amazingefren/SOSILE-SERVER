@@ -11,6 +11,8 @@ type Post {
   history: [PostHistory!]
   likes: [User!]
   replies: [Post!]
+  parents: [Post!]
+  isReply: Boolean!
 }
 
 """

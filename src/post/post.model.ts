@@ -27,6 +27,12 @@ export class Post {
 
   @Field(() => [Post], { nullable: true })
   replies?: Post[];
+
+  @Field(() => [Post], { nullable: true })
+  parents?: Post[];
+
+  @Field(() => Boolean)
+  isReply: boolean;
 }
 
 @ObjectType()
