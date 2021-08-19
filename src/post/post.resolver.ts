@@ -41,4 +41,23 @@ export class PostResolver {
   ) {
     return this.postService.postToggleLike(user, postId);
   }
+
+  @Mutation(() => Post)
+  @UseGuards(AuthGuard)
+  async postCreateReply(
+    @CurrentUser() user: number,
+    @Args('data') data: CreatePostInput,
+    @Args('postId') postId: number,
+  ) {
+    return this.postService.postNewReply(user, data, postId);
+  }
+
+  @Mutation(() => Boolean)
+  @UseGuards(AuthGuard)
+  async deletePost(
+    @CurrentUser() user: number,
+    @Args('postId') postId: number,
+  ) {
+    return this.postService.delete(user, postId);
+  }
 }

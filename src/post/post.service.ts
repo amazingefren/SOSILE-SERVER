@@ -69,4 +69,40 @@ export class PostService {
       return true;
     }
   }
+
+  async postNewReply(
+    user: number,
+    data: CreatePostInput,
+    postId: number,
+  ): Promise<Post | null> {
+    const newReply = await this.prisma.post.update({
+      where: { id: postId },
+      data: {
+        replies: {
+          create: {
+            content: data.content,
+            author: { connect: { id: user } },
+            isReply: true,
+          },
+        },
+      },
+      include: { replies: true },
+    });
+    return newReply;
+  }
+
+  async delete(user: number, postId: number): Promise<boolean> {
+    const check = await this.prisma.post.findUnique({
+      where: { id: postId },
+      include: { author: true },
+    });
+    if (check.authorId == user) {
+      await this.prisma.post.delete({
+        where: { id: postId },
+      });
+      return true;
+    } else {
+      throw new UnauthorizedException();
+    }
+  }
 }

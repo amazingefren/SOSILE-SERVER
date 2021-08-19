@@ -77,6 +77,8 @@ type Mutation {
   createPost(data: CreatePostInput!): Post!
   updatePost(postId: Float!, data: CreatePostInput!): Post!
   postLikeToggle(postId: Float!): Boolean!
+  postCreateReply(postId: Float!, data: CreatePostInput!): Post!
+  deletePost(postId: Float!): Boolean!
   AuthRegisterUser(data: AuthRegisterUserInput!): User!
   AuthRefresh: Boolean!
 }

@@ -17,22 +17,24 @@ model Post {
   //parent         Post?    @relation("repliedBy", fields: [parentId], references: [id])
   //replies        Post[]   @relation("repliedBy")
 
-  replies       PostReply[] @relation("replied")
+  replies       Post[]      @relation(name: "replied")
+  parents       Post[]      @relation(name: "replied")
+  isReply       Boolean     @default(false)
 
   // User Relations
   author        User    @relation(fields: [authorId], references: [id])
   authorId      Int
 }
 
-model PostReply {
-  id      Int @id @default(autoincrement())
-
-  user    User @relation("repliedBy", fields: [userId], references: [id])
-  userId  Int
-
-  post    Post @relation("replied", fields: [postId], references:[id])
-  postId  Int
-}
+// model PostReply {
+//   id      Int @id @default(autoincrement())
+// 
+//   user    User @relation("repliedBy", fields: [userId], references: [id])
+//   userId  Int
+// 
+//   post    Post @relation("replied", fields: [postId], references:[id])
+//   postId  Int
+// }
 
 model PostHistory {
   // Base

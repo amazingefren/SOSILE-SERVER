@@ -20,7 +20,7 @@ model User {
 
   likes     Post[]    @relation(name: "likedBy")
   
-  replies      PostReply[] @relation("repliedBy")
+  replies      Post[] @relation(name: "replies")
 
   // Relation? WIP
   // replies   Post[]    @relation("repliedBy", fields: [replyId], references: [id])
