@@ -46,4 +46,13 @@ export class PostService {
       return newPost;
     }
   }
+
+  async likePost(user: number, postId: number): Promise<Post | null> {
+    const updated = await this.prisma.post.update({
+      where: { id: postId },
+      data: { likes: { connect: { id: user } } },
+      include: { likes: true },
+    });
+    return updated;
+  }
 }

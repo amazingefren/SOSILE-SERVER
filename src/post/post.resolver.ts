@@ -32,4 +32,10 @@ export class PostResolver {
   ) {
     return this.postService.editPost(user, data, postId);
   }
+
+  @Mutation(() => Post)
+  @UseGuards(AuthGuard)
+  async postLike(@CurrentUser() user: number, @Args('postId') postId: number) {
+    return this.postService.likePost(user, postId);
+  }
 }

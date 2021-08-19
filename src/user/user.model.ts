@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import { Field, InputType, Int, ObjectType } from '@nestjs/graphql';
 import { Post } from '../post/post.model';
 import { IsEmail, IsString, Length } from 'class-validator';
-import { PostReply, Prisma } from '@prisma/client';
+import { PostReply } from '@prisma/client';
 
 @ObjectType()
 export class UserProfile {

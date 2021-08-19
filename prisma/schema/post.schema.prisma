@@ -10,8 +10,7 @@ model Post {
   history       PostHistory[]
 
   // Relations
-  likes         User[]   @relation("likedBy", fields: [likedIds], references: [id])
-  likedIds      Int?
+  likes         User[]   @relation("likedBy")
 
   // Children
   //parentId       Int?
