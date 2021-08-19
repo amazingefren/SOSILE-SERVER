@@ -15,6 +15,12 @@ async function bootstrap() {
     AppModule,
     new FastifyAdapter(),
   );
+  app.enableCors({
+    origin: true,
+    credentials: true,
+    allowedHeaders:
+      'Content-Type,Accept,Authorization,Access-Control-Allow-Origin',
+  });
 
   // Assign Variables
   const configService = app.get(ConfigService);

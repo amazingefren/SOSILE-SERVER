@@ -24,6 +24,12 @@ import configuration from './config/configuration';
       debug: true,
       context: ({ request, reply }) => ({ req: request, res: reply }),
       playground: false,
+      cors: {
+        origin: 'http://localhost:3000',
+        credentials: true,
+        allowedHeaders:
+          'Content-Type,Accept,Authorization,Access-Control-Allow-Origin',
+      },
     }),
   ],
   controllers: [AppController],
