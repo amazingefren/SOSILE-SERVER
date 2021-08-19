@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { Args, Query, Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { User, UserAuthIncludeOpts, UserUniqueInput } from './user.model';
 import { UserService } from './user.service';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
@@ -39,5 +39,23 @@ export class UserResolver {
     @Args('include', { nullable: true }) include: UserAuthIncludeOpts,
   ) {
     return this.userService.user({ id: user }, include);
+  }
+
+  @Mutation(() => User)
+  @UseGuards(AuthGuard)
+  async userFollow(
+    @CurrentUser() follower: number,
+    @Args('user', { nullable: false }) following: number,
+  ): Promise<User | null> {
+    return this.userService.userFollow(follower, following);
+  }
+
+  @Query(() => User)
+  @UseGuards(AuthGuard)
+  async userUnfollow(
+    @CurrentUser() user: number,
+    @Args('user', { nullable: false }) following: number,
+  ) {
+    return this.userService.userUnfollow(user, following);
   }
 }

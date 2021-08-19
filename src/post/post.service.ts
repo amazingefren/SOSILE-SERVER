@@ -1,5 +1,4 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreatePostInput, Post } from './post.model';
 

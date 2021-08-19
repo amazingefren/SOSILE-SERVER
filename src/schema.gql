@@ -39,20 +39,15 @@ type User {
   posts: [Post!]
   likes: [Post!]
   replies: [Post!]
-  following: [Follow!]
-  followers: [Follow!]
-}
-
-type Follow {
-  id: Float!
-  following: User
-  follower: User
+  following: [User!]
+  followers: [User!]
 }
 
 type Query {
   debugUsers: [User!]!
   user(include: UserAuthIncludeOpts, where: UserUniqueInput!): User
   whoAmI(include: UserAuthIncludeOpts): User!
+  userUnfollow(user: Float!): User!
   debugPosts: [Post!]!
   AuthLoginUser(data: AuthLoginUserInput!): User!
 }
@@ -78,6 +73,7 @@ input AuthLoginUserInput {
 }
 
 type Mutation {
+  userFollow(user: Float!): User!
   createPost(data: CreatePostInput!): Post!
   updatePost(postId: Float!, data: CreatePostInput!): Post!
   AuthRegisterUser(data: AuthRegisterUserInput!): User!

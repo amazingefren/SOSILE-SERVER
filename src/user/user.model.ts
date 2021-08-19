@@ -42,14 +42,14 @@ export class User {
   @Field(() => [Post], { nullable: true })
   replies?: PostReply[];
 
-  @Field(() => [Follow], { nullable: true })
-  following?: Follow[];
+  @Field(() => [User], { nullable: true })
+  following?: User[];
 
-  @Field(() => [Follow], { nullable: true })
-  followers?: Follow[];
+  @Field(() => [User], { nullable: true })
+  followers?: User[];
 }
 
-@ObjectType()
+/* @ObjectType()
 export class Follow {
   @Field()
   id: number;
@@ -59,7 +59,7 @@ export class Follow {
 
   @Field({ nullable: true })
   follower: User;
-}
+} */
 
 @InputType()
 export class UserAuthIncludeOpts {
