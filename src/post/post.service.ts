@@ -47,12 +47,26 @@ export class PostService {
     }
   }
 
-  async likePost(user: number, postId: number): Promise<Post | null> {
-    const updated = await this.prisma.post.update({
+  async postToggleLike(user: number, postId: number): Promise<Boolean | null> {
+    const liked = await this.prisma.post.findUnique({
       where: { id: postId },
-      data: { likes: { connect: { id: user } } },
-      include: { likes: true },
+      select: { likes: { where: { id: user } } },
     });
-    return updated;
+    console.log(liked);
+    if (liked.likes[0]) {
+      await this.prisma.post.update({
+        where: { id: postId },
+        data: { likes: { disconnect: { id: user } } },
+        include: { likes: true },
+      });
+      return false;
+    } else {
+      await this.prisma.post.update({
+        where: { id: postId },
+        data: { likes: { connect: { id: user } } },
+        include: { likes: true },
+      });
+      return true;
+    }
   }
 }
