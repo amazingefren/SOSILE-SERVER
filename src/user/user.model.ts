@@ -38,7 +38,27 @@ export class User {
 
   @Field(() => [Post], { nullable: true })
   likes?: Post[];
+
+  @Field(() => [Post], { nullable: true })
   replies?: PostReply[];
+
+  @Field(() => [Follow], { nullable: true })
+  following?: Follow[];
+
+  @Field(() => [Follow], { nullable: true })
+  followers?: Follow[];
+}
+
+@ObjectType()
+export class Follow {
+  @Field()
+  id: number;
+
+  @Field({ nullable: true })
+  following: User;
+
+  @Field({ nullable: true })
+  follower: User;
 }
 
 @InputType()

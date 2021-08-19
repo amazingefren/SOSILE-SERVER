@@ -1,4 +1,4 @@
-import { ObjectType, Field } from '@nestjs/graphql';
+import { ObjectType, Field, InputType } from '@nestjs/graphql';
 import { User } from '../user/user.model';
 import 'reflect-metadata';
 
@@ -7,11 +7,8 @@ export class Post {
   @Field(() => Number)
   id: number;
 
-  @Field(() => User)
-  author: User;
-
-  @Field(() => Number)
-  authorId: number;
+  @Field(() => User, { nullable: true })
+  author?: User;
 
   @Field(() => String)
   content: string;
@@ -22,17 +19,14 @@ export class Post {
   @Field(() => Date)
   updated: Date;
 
-  @Field(() => [PostHistory])
-  history: PostHistory[];
+  @Field(() => [PostHistory], { nullable: true })
+  history?: PostHistory[];
 
-  @Field(() => [User])
-  likes: User[];
+  @Field(() => [User], { nullable: true })
+  likes?: User[];
 
-  @Field(() => [Number])
-  likedIds: number[];
-
-  @Field(() => [Post])
-  replies: Post[];
+  @Field(() => [Post], { nullable: true })
+  replies?: Post[];
 }
 
 @ObjectType()
@@ -48,5 +42,11 @@ export class PostHistory {
    * or: parent => number || parent => post || parentId => number
    */
   @Field(() => Post)
-  parent: Post;
+  parent?: Post;
+}
+
+@InputType()
+export class CreatePostInput {
+  @Field({ nullable: false })
+  content: string;
 }

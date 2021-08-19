@@ -4,15 +4,13 @@
 
 type Post {
   id: Float!
-  author: User!
-  authorId: Float!
+  author: User
   content: String!
   date: DateTime!
   updated: DateTime!
-  history: [PostHistory!]!
-  likes: [User!]!
-  likedIds: [Float!]!
-  replies: [Post!]!
+  history: [PostHistory!]
+  likes: [User!]
+  replies: [Post!]
 }
 
 """
@@ -39,12 +37,22 @@ type User {
   profile: UserProfile
   posts: [Post!]
   likes: [Post!]
+  replies: [Post!]
+  following: [Follow!]
+  followers: [Follow!]
+}
+
+type Follow {
+  id: Float!
+  following: User
+  follower: User
 }
 
 type Query {
   debugUsers: [User!]!
   user(include: UserAuthIncludeOpts, where: UserUniqueInput!): User
   whoAmI(include: UserAuthIncludeOpts): User!
+  debugPosts: [Post!]!
   AuthLoginUser(data: AuthLoginUserInput!): User!
 }
 
@@ -69,8 +77,14 @@ input AuthLoginUserInput {
 }
 
 type Mutation {
+  createPost(data: CreatePostInput!): Post!
+  updatePost(postId: Float!, data: CreatePostInput!): Post!
   AuthRegisterUser(data: AuthRegisterUserInput!): User!
   AuthRefresh: Boolean!
+}
+
+input CreatePostInput {
+  content: String!
 }
 
 input AuthRegisterUserInput {

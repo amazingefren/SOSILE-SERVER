@@ -179,7 +179,9 @@ export class AuthService {
     token: string,
     opts: { getPayload: boolean } = { getPayload: false },
   ): boolean | any {
-    const jwtPayload: any = jwt.verify(token, this.CONFIG.atSecret);
+    const jwtPayload: any = jwt.verify(token, this.CONFIG.atSecret, {
+      ignoreExpiration: true,
+    });
     if (opts.getPayload == true) {
       return jwtPayload;
     }

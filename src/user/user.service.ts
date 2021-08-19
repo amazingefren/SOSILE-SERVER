@@ -24,6 +24,6 @@ export class UserService {
     include?: UserAuthIncludeOpts,
   ): Promise<User | null> {
     const user = await this.prisma.user.findUnique({ where, include });
-    return user;
+    return user as User;
   }
 }

@@ -4,14 +4,14 @@ model Post {
   id            Int       @id @default(autoincrement())
   content       String
   date          DateTime  @default(now())
-  updated       DateTime  @default(now())
+  updated       DateTime  @updatedAt
 
   // Post History
   history       PostHistory[]
 
   // Relations
-  likedIds      Int
   likes         User[]   @relation("likedBy", fields: [likedIds], references: [id])
+  likedIds      Int?
 
   // Children
   //parentId       Int?
@@ -39,7 +39,7 @@ model PostHistory {
   // Base
   id        Int       @id @default(autoincrement())
   content   String
-  date      DateTime
+  date      DateTime 
 
   // Relations
   parent    Post?   @relation(fields: [parentId], references: [id])
