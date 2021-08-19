@@ -51,7 +51,6 @@ type Query {
   whoAmI(include: UserAuthIncludeOpts): User!
   userUnfollow(user: Float!): User!
   debugPosts: [Post!]!
-  AuthLoginUser(data: AuthLoginUserInput!): User!
 }
 
 input UserAuthIncludeOpts {
@@ -69,11 +68,6 @@ input UserUniqueInput {
   email: String
 }
 
-input AuthLoginUserInput {
-  username: String!
-  password: String!
-}
-
 type Mutation {
   userFollow(user: Float!): User!
   createPost(data: CreatePostInput!): Post!
@@ -82,6 +76,7 @@ type Mutation {
   postCreateReply(postId: Float!, data: CreatePostInput!): Post!
   deletePost(postId: Float!): Boolean!
   AuthRegisterUser(data: AuthRegisterUserInput!): User!
+  AuthLoginUser(data: AuthLoginUserInput!): User!
   AuthRefresh: Boolean!
   AuthLogout: Boolean!
 }
@@ -92,6 +87,11 @@ input CreatePostInput {
 
 input AuthRegisterUserInput {
   email: String!
+  username: String!
+  password: String!
+}
+
+input AuthLoginUserInput {
   username: String!
   password: String!
 }

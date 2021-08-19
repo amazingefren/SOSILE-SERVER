@@ -1,4 +1,4 @@
-import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, Context, Mutation, Resolver } from '@nestjs/graphql';
 import {
   AuthLoginUserInput,
   AuthRegisterUserInput,
@@ -6,8 +6,8 @@ import {
 } from './auth.model';
 import { AuthService } from './auth.service';
 import { User } from '../user/user.model';
-import { BadRequestException, UseGuards } from '@nestjs/common';
 import { FastifyRequest, FastifyReply } from 'fastify';
+import { ApolloError } from 'apollo-server-fastify';
 
 @Resolver()
 export class AuthResolver {
@@ -26,19 +26,19 @@ export class AuthResolver {
         );
       }
     } catch (e) {
-      return new BadRequestException(e);
+      return e;
     }
   }
 
-  @Query(() => User)
+  @Mutation(() => User)
   async AuthLoginUser(
     @Args('data') data: AuthLoginUserInput,
     @Context() { res }: { res: FastifyReply },
   ) {
     try {
-      return this.authService.LoginUser(data, res);
+      return await this.authService.LoginUser(data, res);
     } catch (e) {
-      return new BadRequestException(e);
+      return e;
     }
   }
 

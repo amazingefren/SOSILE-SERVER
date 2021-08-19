@@ -1,4 +1,4 @@
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   AuthLoginUserInput,
@@ -7,14 +7,12 @@ import {
 } from './auth.model';
 import { User } from '../user/user.model';
 import { ConfigService } from '@nestjs/config';
-import {
-  AuthConfig,
-  DevelopmentConfig,
-  ServerConfig,
-} from '../config/configuration';
+import { AuthConfig, DevelopmentConfig } from '../config/configuration';
 import { FastifyReply } from 'fastify';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
+import { UserInputError } from 'apollo-server-fastify';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -34,6 +32,15 @@ export class AuthService {
   private logger = new Logger('AuthService');
   private CONFIG: AuthConfig;
 
+  private async checkUnique(data: AuthRegisterUserInput): Promise<string[]> {
+    let meta = [];
+    (await this.prisma.user.findUnique({
+      where: { username: data.username },
+    })) && meta.push('username');
+    (await this.prisma.user.findUnique({ where: { email: data.email } })) &&
+      meta.push('email');
+    return meta;
+  }
   /**
    * Handle User Registration and returns User
    * @param data AuthRegisterUserInput
@@ -41,9 +48,19 @@ export class AuthService {
    */
   async RegisterUser(data: AuthRegisterUserInput): Promise<Boolean | Error> {
     const hashedPassword = await this.HashPassword(data.password);
-    await this.prisma.user.create({
-      data: { ...data, password: hashedPassword },
-    });
+    await this.prisma.user
+      .create({
+        data: { ...data, password: hashedPassword },
+      })
+      .catch(async (e) => {
+        if (e instanceof Prisma.PrismaClientKnownRequestError) {
+          throw new UserInputError('User Already Exists', {
+            meta: await this.checkUnique(data),
+          });
+        }
+        this.logger.error(e);
+        throw new Error('Something Went Wrong!');
+      });
     return true;
   }
 
@@ -57,9 +74,14 @@ export class AuthService {
     data: AuthLoginUserInput,
     contextRes?: FastifyReply,
   ): Promise<User | Error> {
-    const user = await this.prisma.user.findUnique({
-      where: { username: data.username },
-    });
+    const user = await this.prisma.user
+      .findUnique({
+        where: { username: data.username },
+      })
+      .then((data) => {
+        if (!data) throw new UserInputError('Invalid Credentials');
+        return data;
+      });
 
     const isMatch = await bcrypt.compare(data.password, user.password);
 
@@ -75,7 +97,7 @@ export class AuthService {
       }
       return user as User;
     } else {
-      throw new UnauthorizedException();
+      throw new UserInputError('Invalid Credentials');
     }
   }
 
