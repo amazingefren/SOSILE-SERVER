@@ -11,6 +11,10 @@ export class AuthUser extends User {
   @Field(() => String, { nullable: true })
   @IsString()
   role?: Role;
+
+  @Field(() => String, { nullable: true })
+  @IsString()
+  token?: Role;
 }
 
 @InputType()

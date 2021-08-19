@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   AuthLoginUserInput,
@@ -73,7 +73,7 @@ export class AuthService {
   async LoginUser(
     data: AuthLoginUserInput,
     contextRes?: FastifyReply,
-  ): Promise<User | Error> {
+  ): Promise<AuthUser | Error> {
     const user = await this.prisma.user
       .findUnique({
         where: { username: data.username },
@@ -87,15 +87,16 @@ export class AuthService {
 
     if (user && isMatch) {
       this.logger.verbose('LoginUser matched');
-      if (contextRes) {
-        this.logger.verbose('Generating Access Tokens');
-        const atoken = this.GenerateAccessToken(user);
-        const rtoken = await this.GenerateRefreshToken(user);
-        this.logger.verbose('Assigning Cookies to Response Context');
-        contextRes.setCookie('access_token', atoken);
-        contextRes.setCookie('refresh_token', rtoken);
-      }
-      return user as User;
+      this.logger.verbose('Generating Access Tokens');
+      const atoken = this.GenerateAccessToken(user);
+      const rtoken = await this.GenerateRefreshToken(user);
+      this.logger.verbose('Assigning Cookies to Response Context');
+      contextRes.setCookie('access_token', atoken, {
+        httpOnly: true,
+        sameSite: 'lax',
+      });
+      // contextRes.setCookie('refresh_token', rtoken);
+      return { ...user, token: rtoken } as AuthUser;
     } else {
       throw new UserInputError('Invalid Credentials');
     }
@@ -158,7 +159,7 @@ export class AuthService {
       await this.prisma.rToken.deleteMany({ where: { userId: payload.id } });
     } */
 
-    return final.token;
+    return 'Bearer ' + final.token;
   }
 
   /**
@@ -187,6 +188,9 @@ export class AuthService {
     token: string,
     opts: { getPayload: boolean } = { getPayload: false },
   ): boolean | any {
+    if (!token) {
+      throw new UnauthorizedException();
+    }
     const jwtPayload: any = jwt.verify(token, this.CONFIG.atSecret, {
       ignoreExpiration: true,
     });
@@ -195,18 +199,35 @@ export class AuthService {
     }
     return token ? true : false;
   }
+
+  private adjustRefreshToken(token: string): string {
+    const sections = token.split(' ');
+    if (sections.length === 2) {
+      const bearer = sections[0];
+      const credentials = sections[1];
+      if (bearer === 'Bearer' && /^Bearer$/i.test(bearer)) {
+        return credentials;
+      } else {
+        throw new UnauthorizedException();
+      }
+    }
+  }
+
   /**
    * Verify Refresh_Token
    * @param token string
    * @returns boolean
    */
   async ValidateRefreshToken(
-    token: string,
+    unformattedToken: string,
     opts?: {
       getUser: boolean;
     },
   ): Promise<boolean | AuthUser> {
-    const jwtPayload: any = jwt.verify(token, this.CONFIG.rtSecret);
+    const token = this.adjustRefreshToken(unformattedToken);
+    const jwtPayload: any = jwt.verify(token, this.CONFIG.rtSecret, {
+      ignoreExpiration: true,
+    });
     try {
       const data = await this.prisma.rToken.findUnique({
         where: {
@@ -225,9 +246,13 @@ export class AuthService {
 
   async wipeToken(token: string) {
     try {
-      const jwtPayload: any = jwt.verify(token, this.CONFIG.rtSecret, {
-        ignoreExpiration: true,
-      });
+      const jwtPayload: any = jwt.verify(
+        this.adjustRefreshToken(token),
+        this.CONFIG.rtSecret,
+        {
+          ignoreExpiration: true,
+        },
+      );
       await this.prisma.rToken.delete({
         where: {
           id: Number(jwtPayload.sub),

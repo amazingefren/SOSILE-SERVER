@@ -45,6 +45,20 @@ type User {
   followers: [User!]
 }
 
+type AuthUser {
+  id: Int!
+  username: String!
+  email: String!
+  profile: UserProfile
+  posts: [Post!]
+  likes: [Post!]
+  replies: [Post!]
+  following: [User!]
+  followers: [User!]
+  role: String
+  token: String
+}
+
 type Query {
   debugUsers: [User!]!
   user(include: UserAuthIncludeOpts, where: UserUniqueInput!): User
@@ -76,7 +90,7 @@ type Mutation {
   postCreateReply(postId: Float!, data: CreatePostInput!): Post!
   deletePost(postId: Float!): Boolean!
   AuthRegisterUser(data: AuthRegisterUserInput!): User!
-  AuthLoginUser(data: AuthLoginUserInput!): User!
+  AuthLoginUser(data: AuthLoginUserInput!): AuthUser!
   AuthRefresh: Boolean!
   AuthLogout: Boolean!
 }

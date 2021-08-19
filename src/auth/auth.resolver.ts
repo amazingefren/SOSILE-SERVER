@@ -30,7 +30,7 @@ export class AuthResolver {
     }
   }
 
-  @Mutation(() => User)
+  @Mutation(() => AuthUser)
   async AuthLoginUser(
     @Args('data') data: AuthLoginUserInput,
     @Context() { res }: { res: FastifyReply },
@@ -46,10 +46,12 @@ export class AuthResolver {
   async AuthRefresh(
     @Context() { req, res }: { req: FastifyRequest; res: FastifyReply },
   ) {
-    if (req.cookies.refresh_token) {
+    if (req.headers.authorization) {
       const user = await this.authService.ValidateRefreshToken(
-        req.cookies.refresh_token,
-        { getUser: true },
+        req.headers.authorization,
+        {
+          getUser: true,
+        },
       );
       if (user) {
         const token = this.authService.GenerateAccessToken(user as AuthUser);
@@ -59,7 +61,7 @@ export class AuthResolver {
       return false;
     } else {
       res.clearCookie('access_token');
-      res.clearCookie('refresh_token');
+      // res.clearCookie('refresh_token');
       return false;
     }
   }
@@ -68,10 +70,10 @@ export class AuthResolver {
   async AuthLogout(
     @Context() { req, res }: { req: FastifyRequest; res: FastifyReply },
   ) {
-    const success = await this.authService.wipeToken(req.cookies.refresh_token);
+    const rToken = req.headers.authorization;
+    res.clearCookie('access_token');
+    const success = await this.authService.wipeToken(rToken);
     if (success) {
-      res.clearCookie('access_token');
-      res.clearCookie('refresh_token');
       return true;
     }
     return false;
