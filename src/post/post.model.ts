@@ -37,6 +37,9 @@ export class PostHistory {
   @Field(() => String)
   content: string;
 
+  @Field(() => Date)
+  date: Date;
+
   /* 1 parent, or multiple: can be swapped later in relation to post.schema.ts
    * parent: Post + parentId: Post.id (aka number)?
    * or: parent => number || parent => post || parentId => number
