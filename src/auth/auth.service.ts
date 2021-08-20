@@ -93,7 +93,8 @@ export class AuthService {
       this.logger.verbose('Assigning Cookies to Response Context');
       contextRes.setCookie('access_token', atoken, {
         httpOnly: true,
-        sameSite: 'lax',
+        sameSite: 'strict',
+        secure: true,
       });
       // contextRes.setCookie('refresh_token', rtoken);
       return { ...user, token: rtoken } as AuthUser;

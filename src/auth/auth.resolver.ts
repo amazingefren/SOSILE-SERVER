@@ -1,4 +1,4 @@
-import { Args, Context, Mutation, Resolver } from '@nestjs/graphql';
+import { Args, Context, Mutation, Resolver, Query } from '@nestjs/graphql';
 import {
   AuthLoginUserInput,
   AuthRegisterUserInput,
@@ -8,6 +8,8 @@ import { AuthService } from './auth.service';
 import { User } from '../user/user.model';
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { ApolloError } from 'apollo-server-fastify';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from './guards/auth.guard';
 
 @Resolver()
 export class AuthResolver {
@@ -55,7 +57,11 @@ export class AuthResolver {
       );
       if (user) {
         const token = this.authService.GenerateAccessToken(user as AuthUser);
-        res.setCookie('access_token', token);
+        res.setCookie('access_token', token, {
+          httpOnly: true,
+          sameSite: 'strict',
+          secure: true,
+        });
         return true;
       }
       return false;
@@ -77,5 +83,12 @@ export class AuthResolver {
       return true;
     }
     return false;
+  }
+
+  @Query(() => Boolean)
+  @UseGuards(AuthGuard)
+  async AuthCheck() {
+    return true;
+    // return false;
   }
 }
