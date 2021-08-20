@@ -17,7 +17,7 @@ type Post {
   content: String!
   date: DateTime!
   updated: DateTime!
-  history: [PostHistory!]!
+  history: [PostHistory!]
   likes: [User!]
   comments: [Post!]
   parents: [Post!]
@@ -32,7 +32,7 @@ scalar DateTime
 type Comment {
   id: Float!
   content: String!
-  date: DateTime!
+  date: DateTime
   likes: [User!]
   author: User
   post: Post
@@ -86,7 +86,7 @@ type Query {
   whoAmI(include: UserIncludeOpts): User!
   userUnfollow(user: Float!): User!
   debugPosts: [Post!]!
-  userPosts(include: PostIncludeOpts, user: Float): [Post!]
+  findPostById(user: Float): [Post!]
   AuthCheck: Boolean!
 }
 
@@ -106,20 +106,14 @@ input UserUniqueInput {
   email: String
 }
 
-input PostIncludeOpts {
-  author: Boolean = false
-  history: Boolean = false
-  likes: Boolean = false
-  comments: Boolean = false
-}
-
 type Mutation {
   userFollow(user: Float!): User!
   createPost(data: CreatePostInput!): Post!
-  updatePost(postId: Float!, data: CreatePostInput!): Post!
+  editPost(postId: Float!, data: CreatePostInput!): Post!
   deletePost(postId: Float!): Boolean!
   postLikeToggle(postId: Float!): Boolean!
-  postCreateReply(postId: Float!, data: CreatePostInput!): Post!
+  createComment(postId: Float!, data: CreatePostInput!): Comment!
+  deleteComment(commentId: Float!): Boolean!
   AuthRegisterUser(data: AuthRegisterUserInput!): User!
   AuthLoginUser(data: AuthLoginUserInput!): AuthUser!
   AuthRefresh: Boolean!

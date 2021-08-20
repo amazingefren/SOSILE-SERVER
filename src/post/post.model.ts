@@ -54,8 +54,8 @@ export class Comment {
   id: number;
   @Field(() => String)
   content: string;
-  @Field(() => Date)
-  date: Date;
+  @Field(() => Date, { nullable: true })
+  date?: Date;
   @Field(() => [User], { nullable: true })
   likes?: User[];
   @Field(() => User, { nullable: true })

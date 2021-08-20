@@ -13,12 +13,10 @@ export const Fields = createParamDecorator((match, context) => {
   const fields = Object.keys(graphqlFields(gqlInfo));
   const compare = Object.keys(new match());
   let result = {};
-  console.log(compare);
-  console.log(fields);
   for (let i = 0; i < fields.length; i++) {
     if (compare.includes(fields[i])) {
       result[fields[i]] = true;
     }
   }
-  return result as typeof match;
+  return Object.keys(result).length != 0 ? result : new match();
 });

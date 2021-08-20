@@ -1,55 +1,50 @@
-import { UseGuards } from '@nestjs/common';
-import {
-  Args,
-  Mutation,
-  Parent,
-  Query,
-  ResolveField,
-  Resolver,
-} from '@nestjs/graphql';
-import { AuthGuard } from 'src/auth/guards/auth.guard';
-import { CurrentUser } from 'src/user/decorators/user.decorator';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import {
   CreatePostInput,
   Post,
-  PostHistory,
+  Comment,
   PostIncludeOpts,
+  CommentIncludeOpts,
 } from './post.model';
+import { AuthGuard } from 'src/auth/guards/auth.guard';
+import { CurrentUser } from 'src/user/decorators/user.decorator';
 import { PostService } from './post.service';
 import { Fields } from 'src/graphql/fields.decorator';
+import { UseGuards } from '@nestjs/common';
 
 @Resolver(() => Post)
 export class PostResolver {
   constructor(private postService: PostService) {}
 
-  /* MUTATIONS */
   @Query(() => [Post])
-  async debugPosts(
-    // @Info()info:GraphQLResolveInfo
-    @Fields(PostIncludeOpts) info: PostIncludeOpts,
-  ) {
-    console.log(info);
-    // console.log(Object.keys(graphqlFields(info)))
-    return this.postService.allPosts();
+  async debugPosts(@Fields(PostIncludeOpts) opts: PostIncludeOpts) {
+    return this.postService.allPosts(opts);
   }
 
+  /* MUTATIONS */
   @Mutation(() => Post)
   @UseGuards(AuthGuard)
   async createPost(
     @CurrentUser() user: number,
     @Args('data') data: CreatePostInput,
+    @Fields(PostIncludeOpts) opts: PostIncludeOpts,
   ) {
-    return this.postService.createPost(user, data);
+    return this.postService.createPost(user, data, opts).catch(() => {
+      throw new Error('Something Went Wrong!');
+    });
   }
 
   @Mutation(() => Post)
   @UseGuards(AuthGuard)
-  async updatePost(
+  async editPost(
     @CurrentUser() user: number,
     @Args('data') data: CreatePostInput,
     @Args('postId') postId: number,
+    @Fields(PostIncludeOpts) opts: PostIncludeOpts,
   ) {
-    return this.postService.editPost(user, data, postId);
+    return this.postService.editPost(user, data, postId, opts).catch(() => {
+      throw new Error('Not Found');
+    });
   }
 
   @Mutation(() => Boolean)
@@ -58,7 +53,9 @@ export class PostResolver {
     @CurrentUser() user: number,
     @Args('postId') postId: number,
   ) {
-    return this.postService.delete(user, postId);
+    return this.postService.deletePost(user, postId).catch(() => {
+      throw new Error('Not Found');
+    });
   }
 
   @Mutation(() => Boolean)
@@ -67,38 +64,49 @@ export class PostResolver {
     @CurrentUser() user: number,
     @Args('postId') postId: number,
   ) {
-    return this.postService.postToggleLike(user, postId);
+    return await this.postService.togglePostLike(user, postId).catch(() => {
+      throw new Error('Not Found');
+    });
   }
 
-  @Mutation(() => Post)
+  @Mutation(() => Comment)
   @UseGuards(AuthGuard)
-  async postCreateReply(
+  async createComment(
     @CurrentUser() user: number,
     @Args('data') data: CreatePostInput,
     @Args('postId') postId: number,
+    @Fields(CommentIncludeOpts) opts: CommentIncludeOpts,
   ) {
-    return this.postService.postNewReply(user, data, postId);
+    return this.postService
+      .createComment(user, data, postId, opts)
+      .catch(() => {
+        throw new Error('Something Went Wrong');
+      });
+  }
+
+  @Mutation(() => Boolean)
+  @UseGuards(AuthGuard)
+  async deleteComment(
+    @CurrentUser() user: number,
+    @Args('commentId') commentId: number,
+  ) {
+    return this.postService.deleteComment(user, commentId).catch(() => {
+      throw new Error('Not Found');
+    });
   }
 
   /* QUERY */
   @Query(() => [Post], { nullable: true })
   @UseGuards(AuthGuard)
-  async userPosts(
+  async findPostById(
     @CurrentUser() currentUserId: number,
+    @Fields(PostIncludeOpts) opts: PostIncludeOpts,
     @Args('user', { nullable: true }) requestUserId?: number,
-    @Args('include', { nullable: true }) include?: PostIncludeOpts,
-    //Count?
-    //Override?
   ) {
-    return await this.postService.findUserPosts(
-      requestUserId || currentUserId,
-      include,
-    );
-  }
-
-  /* FIELD RESOLVER */
-  @ResolveField('history', (_) => [PostHistory])
-  async getHistory(@Parent() post: Post) {
-    return await this.postService.getPostHistory(post.id);
+    return await this.postService
+      .findUserPosts(requestUserId || currentUserId, opts)
+      .catch(() => {
+        throw new Error('Not Found');
+      });
   }
 }

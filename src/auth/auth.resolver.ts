@@ -7,7 +7,6 @@ import {
 import { AuthService } from './auth.service';
 import { User } from '../user/user.model';
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { ApolloError } from 'apollo-server-fastify';
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from './guards/auth.guard';
 

@@ -1,55 +1,45 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreatePostInput, Post, PostIncludeOpts } from './post.model';
+import {
+  CreatePostInput,
+  Post,
+  PostIncludeOpts,
+  Comment,
+  CommentIncludeOpts,
+} from './post.model';
 
 @Injectable()
 export class PostService {
   constructor(private prisma: PrismaService) {}
   private readonly logger = new Logger('PostService');
 
-  async allPosts() {
-    return this.prisma.post.findMany({ include: { comments: true } });
+  async allPosts(include: PostIncludeOpts) {
+    return this.prisma.post.findMany({ include });
   }
 
-  async createPost(id: number, data: CreatePostInput): Promise<Post | null> {
-    this.logger.debug(id + ' has posted: ' + data.content);
-    /* const post = await this.prisma.post.create({
-      data: {
-        author: { connect: { id } },
-        content: data.content,
-      },
-      include: { author: true },
-    }); */
+  /* MUTATION */
+  // Create Post
+  async createPost(
+    id: number,
+    data: CreatePostInput,
+    include: PostIncludeOpts,
+  ): Promise<Post | null> {
     const post = await this.prisma.post.create({
       data: {
         author: { connect: { id } },
         content: data.content,
       },
-      include: { author: true },
+      include,
     });
     return post as Post;
   }
 
-  async findUserPosts(
-    user: number,
-    include: PostIncludeOpts,
-    // @TODO PostIncludeOptsIsTheMove100%REMINDER
-    // @CHECKOUT UserAuthIncludeOpts<------------
-  ) {
-    return (await this.prisma.post.findMany({
-      where: { authorId: user },
-      include: {
-        ...include,
-        // _COUNT CANNOT HAVE SELF RELATION LIKE REPLIES/PARENT????????????
-        _count: { select: { likes: true, history: true } },
-      },
-    })) as Post[];
-  }
-
+  // Edit Post
   async editPost(
     user: number,
     data: CreatePostInput,
     postId: number,
+    include: PostIncludeOpts,
   ): Promise<Post | null> {
     const old = await this.prisma.post.findUnique({
       where: { id: postId },
@@ -64,18 +54,33 @@ export class PostService {
           content: data.content,
           history: { create: { content: old.content, date: old.updated } },
         },
-        include: { history: true },
+        include,
       });
       return newPost;
     }
   }
 
-  async postToggleLike(user: number, postId: number): Promise<Boolean | null> {
+  async deletePost(user: number, postId: number): Promise<boolean> {
+    const check = await this.prisma.post.findUnique({
+      where: { id: postId },
+      include: { author: true },
+    });
+    if (check.authorId == user) {
+      await this.prisma.post.delete({
+        where: { id: postId },
+      });
+      return true;
+    } else {
+      throw new UnauthorizedException();
+    }
+  }
+
+  async togglePostLike(user: number, postId: number): Promise<Boolean | null> {
     const liked = await this.prisma.post.findUnique({
       where: { id: postId },
       select: { likes: { where: { id: user } } },
     });
-    console.log(liked);
+
     if (liked.likes[0]) {
       await this.prisma.post.update({
         where: { id: postId },
@@ -93,34 +98,31 @@ export class PostService {
     }
   }
 
-  async postNewReply(
+  async createComment(
     user: number,
     data: CreatePostInput,
     postId: number,
-  ): Promise<Post | null> {
-    await this.prisma.user.update({
-      where: { id: user },
+    include: CommentIncludeOpts,
+  ): Promise<Comment | null> {
+    const newComment = await this.prisma.comment.create({
       data: {
-        comments: {
-          create: {
-            content: data.content,
-            post: { connect: { id: postId } },
-          },
-        },
+        author: { connect: { id: user } },
+        content: data.content,
+        post: { connect: { id: postId } },
       },
+      include,
     });
-
-    return null;
+    return newComment as Comment;
   }
 
-  async delete(user: number, postId: number): Promise<boolean> {
-    const check = await this.prisma.post.findUnique({
-      where: { id: postId },
+  async deleteComment(user: number, commentId: number): Promise<boolean> {
+    const check = await this.prisma.comment.findUnique({
+      where: { id: commentId },
       include: { author: true },
     });
     if (check.authorId == user) {
-      await this.prisma.post.delete({
-        where: { id: postId },
+      await this.prisma.comment.delete({
+        where: { id: commentId },
       });
       return true;
     } else {
@@ -128,15 +130,14 @@ export class PostService {
     }
   }
 
-  async getPostHistory(postId: number) {
-    this.logger.debug('Getting Post History');
-    const data = await this.prisma.post.findMany({
-      where: { id: postId },
-      select: {
-        history: true,
+  async findUserPosts(user: number, include: PostIncludeOpts) {
+    return (await this.prisma.post.findMany({
+      where: { authorId: user },
+      include: {
+        ...include,
+        // _COUNT CANNOT HAVE SELF RELATION LIKE REPLIES/PARENT????????????
+        _count: { select: { likes: true, comments: true } },
       },
-    });
-    // this.logger.debug(data)
-    return data;
+    })) as Post[];
   }
 }
