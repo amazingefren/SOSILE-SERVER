@@ -3,6 +3,15 @@ import { User } from '../user/user.model';
 import 'reflect-metadata';
 
 @ObjectType()
+class PostCount {
+  @Field(() => Number)
+  likes?: number;
+
+  @Field(() => Number)
+  comments?: number;
+}
+
+@ObjectType()
 export class Post {
   @Field(() => Number)
   id: number;
@@ -33,6 +42,9 @@ export class Post {
 
   @Field(() => Boolean)
   isReply: boolean;
+
+  @Field(() => PostCount, { nullable: true })
+  _count?: PostCount;
 }
 
 @ObjectType()

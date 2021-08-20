@@ -7,7 +7,7 @@ model Post {
 
   history       PostHistory[]
 
-  likes         User[]   @relation("likedBy")
+  likes         User[]  @relation("likedBy")
 
   // CURRENTLY THIS IS DOING 1->1->1
   // SO REPLY HAS 1 PARENT

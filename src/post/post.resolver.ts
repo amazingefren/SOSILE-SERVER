@@ -23,14 +23,20 @@ export class PostResolver {
     return this.postService.createPost(user, data);
   }
 
-  @Mutation(() => [Post])
+  @Query(() => [Post])
   @UseGuards(AuthGuard)
   async userPosts(
-    @CurrentUser() user: number,
+    @CurrentUser() currentUserId: number,
+    @Args('user', { nullable: true }) requestUserId: number,
+    @Args('likes', { nullable: true }) likes: boolean = false,
     //Count?
     //Override?
   ) {
-    return this.postService.findUserPosts(user);
+    if (!requestUserId) {
+      return this.postService.findUserPosts(currentUserId, likes);
+    } else {
+      return this.postService.findUserPosts(requestUserId, likes);
+    }
   }
 
   @Mutation(() => Post)
