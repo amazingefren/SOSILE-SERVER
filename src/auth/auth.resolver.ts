@@ -59,8 +59,8 @@ export class AuthResolver {
         const token = this.authService.GenerateAccessToken(user as AuthUser);
         res.setCookie('access_token', token, {
           httpOnly: true,
-          sameSite: 'strict',
-          secure: true,
+          sameSite: 'lax',
+          // secure: true,
         });
         return true;
       }

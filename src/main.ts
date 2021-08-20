@@ -30,6 +30,7 @@ async function bootstrap() {
 
   app.register(fastifyCookie, {
     secret: COOKIESECRET,
+    logLevel: 'debug',
   });
 
   // Initalize Logger

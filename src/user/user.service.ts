@@ -37,7 +37,8 @@ export class UserService {
             create: { User: { connect: { id: following } } },
           }, 
       }, */
-        following: { connect: { id: following } },
+        // following: { connect: { id: following } },
+        following: { create: { following: { connect: { id: following } } } },
       },
       include: { following: true },
     });
@@ -51,7 +52,16 @@ export class UserService {
   ): Promise<User | null> {
     const updated = await this.prisma.user.update({
       where: { id: follower },
-      data: { following: { disconnect: { id: following } } },
+      data: {
+        following: {
+          delete: {
+            followerId_followingId: {
+              followingId: following,
+              followerId: follower,
+            },
+          },
+        },
+      },
       include: { following: true },
     });
     return updated;

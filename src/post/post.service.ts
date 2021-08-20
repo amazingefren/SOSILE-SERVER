@@ -8,7 +8,7 @@ export class PostService {
   private readonly logger = new Logger('PostService');
 
   async allPosts() {
-    return this.prisma.post.findMany();
+    return this.prisma.post.findMany({ include: { comments: true } });
   }
 
   async createPost(id: number, data: CreatePostInput): Promise<Post | null> {
@@ -98,22 +98,19 @@ export class PostService {
     data: CreatePostInput,
     postId: number,
   ): Promise<Post | null> {
-    const newPost = await this.prisma.post.create({
+    await this.prisma.user.update({
+      where: { id: user },
       data: {
-        author: { connect: { id: user } },
-        content: data.content,
-        isReply: true,
+        comments: {
+          create: {
+            content: data.content,
+            post: { connect: { id: postId } },
+          },
+        },
       },
     });
 
-    await this.prisma.postReply.create({
-      data: {
-        reply: { connect: { id: newPost.id } },
-        replyTo: { connect: { id: postId } },
-      },
-    });
-
-    return newPost;
+    return null;
   }
 
   async delete(user: number, postId: number): Promise<boolean> {

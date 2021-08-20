@@ -10,15 +10,27 @@ model User {
   sessions  RToken[] @relation("UserTokens")
 
   posts     Post[]
+  comments Comment[] @relation(name: "commentAuthor")
+
   profile   UserProfile?
 
-  following User[] @relation(name: "followers")
-  followers User[] @relation(name: "followers")
+  //following User[] @relation(name: "followers")
+  //followers User[] @relation(name: "followers")
 
-  likes     Post[]    @relation(name: "likedBy")
-  
-  replies      Post[] @relation(name: "replies")
+  followers Follow[] @relation(name: "following")
+  following Follow[] @relation(name: "followers")
 
+  postLikes     Post[]    @relation(name: "likedBy")
+  commentLikes  Comment[] @relation(name: "commentLiked")
+}
+
+model Follow {
+  follower      User @relation(name:"followers", fields:[followerId], references:[id])
+  followerId    Int
+  following     User @relation(name:"following", fields:[followingId], references:[id])
+  followingId   Int
+
+  @@id([followerId, followingId])
 }
 
 model UserProfile {

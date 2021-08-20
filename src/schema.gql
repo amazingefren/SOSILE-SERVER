@@ -7,6 +7,10 @@ type PostCount {
   comments: Float!
 }
 
+type CommentCount {
+  likes: Float!
+}
+
 type Post {
   id: Float!
   author: User
@@ -15,9 +19,8 @@ type Post {
   updated: DateTime!
   history: [PostHistory!]
   likes: [User!]
-  replies: [Post!]
+  comments: [Post!]
   parents: [Post!]
-  isReply: Boolean!
   _count: PostCount
 }
 

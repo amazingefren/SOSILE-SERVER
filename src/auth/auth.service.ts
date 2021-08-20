@@ -93,8 +93,8 @@ export class AuthService {
       this.logger.verbose('Assigning Cookies to Response Context');
       contextRes.setCookie('access_token', atoken, {
         httpOnly: true,
-        sameSite: 'strict',
-        secure: true,
+        sameSite: 'lax',
+        // secure: true,
       });
       // contextRes.setCookie('refresh_token', rtoken);
       return { ...user, token: rtoken } as AuthUser;
@@ -190,6 +190,7 @@ export class AuthService {
     opts: { getPayload: boolean } = { getPayload: false },
   ): boolean | any {
     if (!token) {
+      this.logger.debug('token not provided');
       throw new UnauthorizedException();
     }
     const jwtPayload: any = jwt.verify(token, this.CONFIG.atSecret, {

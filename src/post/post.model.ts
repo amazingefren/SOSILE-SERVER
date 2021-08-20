@@ -12,6 +12,12 @@ class PostCount {
 }
 
 @ObjectType()
+class CommentCount {
+  @Field(() => Number)
+  likes?: number;
+}
+
+@ObjectType()
 export class Post {
   @Field(() => Number)
   id: number;
@@ -35,13 +41,10 @@ export class Post {
   likes?: User[];
 
   @Field(() => [Post], { nullable: true })
-  replies?: Post[];
+  comments?: Comment[];
 
   @Field(() => [Post], { nullable: true })
   parents?: Post[];
-
-  @Field(() => Boolean)
-  isReply: boolean;
 
   @Field(() => PostCount, { nullable: true })
   _count?: PostCount;
@@ -59,6 +62,30 @@ export class PostIncludeOpts {
   replies?: boolean = false;
   @Field()
   parents?: boolean = false;
+}
+
+@ObjectType()
+export class Comment {
+  @Field(() => Number)
+  id: number;
+
+  @Field(() => User, { nullable: true })
+  author?: User;
+
+  @Field(() => String)
+  content: string;
+
+  @Field(() => Date)
+  date: Date;
+
+  @Field(() => [User], { nullable: true })
+  likes?: User[];
+
+  @Field(() => Post, { nullable: true })
+  parent?: Post;
+
+  @Field(() => CommentCount, { nullable: true })
+  _count?: CommentCount;
 }
 
 @ObjectType()

@@ -12,9 +12,10 @@ model Post {
   // CURRENTLY THIS IS DOING 1->1->1
   // SO REPLY HAS 1 PARENT
   // AND REPLY HAS 1 REPLY THAT HAS 1 REPLY
-  replies       PostReply[] @relation(name: "reply")
-  parents       PostReply[] @relation(name: "parent")
-  isReply       Boolean     @default(false)
+  comments      Comment[]     @relation(name: "commentParent")
+
+  //parents       PostReply[] @relation(name: "children")
+  //isReply       Boolean     @default(false)
 
   author        User    @relation(fields: [authorId], references: [id])
   authorId      Int
@@ -29,11 +30,16 @@ model PostHistory {
   parentId  Int?
 }
 
-model PostReply {
-  reply     Post @relation(name: "parent", fields:[replyId], references:[id])
-  replyId   Int
-  replyTo    Post @relation(name: "reply", fields:[replyToId], references:[id])
-  replyToId  Int
+model Comment {
+  id        Int       @id @default(autoincrement())
+  content   String
+  date      DateTime  @default(now())
 
-  @@id([replyId, replyToId])
+  likes     User[]    @relation(name: "commentLiked")
+
+  author    User      @relation(name: "commentAuthor", fields:[authorId], references:[id])
+  authorId  Int
+
+  post      Post      @relation(name: "commentParent", fields:[postId], references:[id])
+  postId    Int
 }
