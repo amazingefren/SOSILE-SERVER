@@ -6,50 +6,37 @@ import 'reflect-metadata';
 class PostCount {
   @Field(() => Number)
   likes?: number;
-
   @Field(() => Number)
   comments?: number;
 }
-
 @ObjectType()
 class CommentCount {
   @Field(() => Number)
   likes?: number;
 }
-
 @ObjectType()
 export class Post {
   @Field(() => Number)
   id: number;
-
   @Field(() => User, { nullable: true })
   author?: User;
-
   @Field(() => String)
   content: string;
-
   @Field(() => Date)
   date: Date;
-
   @Field(() => Date)
   updated: Date;
-
   @Field(() => [PostHistory], { nullable: true })
   history?: PostHistory[];
-
   @Field(() => [User], { nullable: true })
   likes?: User[];
-
   @Field(() => [Post], { nullable: true })
   comments?: Comment[];
-
   @Field(() => [Post], { nullable: true })
   parents?: Post[];
-
   @Field(() => PostCount, { nullable: true })
   _count?: PostCount;
 }
-
 @InputType()
 export class PostIncludeOpts {
   @Field()
@@ -59,50 +46,45 @@ export class PostIncludeOpts {
   @Field()
   likes?: boolean = false;
   @Field()
-  replies?: boolean = false;
-  @Field()
-  parents?: boolean = false;
+  comments?: boolean = false;
 }
-
 @ObjectType()
 export class Comment {
   @Field(() => Number)
   id: number;
-
-  @Field(() => User, { nullable: true })
-  author?: User;
-
   @Field(() => String)
   content: string;
-
   @Field(() => Date)
   date: Date;
-
   @Field(() => [User], { nullable: true })
   likes?: User[];
-
+  @Field(() => User, { nullable: true })
+  author?: User;
   @Field(() => Post, { nullable: true })
-  parent?: Post;
-
+  post?: Post;
   @Field(() => CommentCount, { nullable: true })
   _count?: CommentCount;
 }
-
+@InputType()
+export class CommentIncludeOpts {
+  @Field()
+  author?: boolean = false;
+  @Field()
+  likes?: boolean = false;
+  @Field()
+  post?: boolean = false;
+}
 @ObjectType()
 export class PostHistory {
   @Field(() => Number, { nullable: true })
   id?: number;
-
   @Field(() => String, { nullable: true })
   content?: string;
-
   @Field(() => Date, { nullable: true })
   date?: Date;
-
   @Field(() => Post, { nullable: true })
   parent?: Post;
 }
-
 @InputType()
 export class CreatePostInput {
   @Field({ nullable: false })

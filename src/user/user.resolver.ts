@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { User, UserAuthIncludeOpts, UserUniqueInput } from './user.model';
+import { User, UserIncludeOpts, UserUniqueInput } from './user.model';
 import { UserService } from './user.service';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
 import { UseGuards, ForbiddenException } from '@nestjs/common';
@@ -18,7 +18,7 @@ export class UserResolver {
   @Query(() => User, { nullable: true })
   async user(
     @Args('where', { nullable: false }) where: UserUniqueInput,
-    @Args('include', { nullable: true }) include: UserAuthIncludeOpts,
+    @Args('include', { nullable: true }) include: UserIncludeOpts,
   ) {
     const { id, username, email } = where;
     if (id) {
@@ -36,7 +36,7 @@ export class UserResolver {
   @UseGuards(AuthGuard)
   async whoAmI(
     @CurrentUser() user: number,
-    @Args('include', { nullable: true }) include: UserAuthIncludeOpts,
+    @Args('include', { nullable: true }) include: UserIncludeOpts,
   ) {
     return this.userService.user({ id: user }, include);
   }

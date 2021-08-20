@@ -5,18 +5,10 @@ model Post {
   date          DateTime  @default(now())
   updated       DateTime  @updatedAt
 
+  // Include Fields
   history       PostHistory[]
-
   likes         User[]  @relation("likedBy")
-
-  // CURRENTLY THIS IS DOING 1->1->1
-  // SO REPLY HAS 1 PARENT
-  // AND REPLY HAS 1 REPLY THAT HAS 1 REPLY
   comments      Comment[]     @relation(name: "commentParent")
-
-  //parents       PostReply[] @relation(name: "children")
-  //isReply       Boolean     @default(false)
-
   author        User    @relation(fields: [authorId], references: [id])
   authorId      Int
 }

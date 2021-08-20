@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { User, Prisma } from '@prisma/client';
-import { UserAuthIncludeOpts, UserProfile } from './user.model';
+import { UserIncludeOpts, UserProfile } from './user.model';
 // import { UserCreateInput } from './user.model';
 
 @Injectable()
@@ -21,7 +21,7 @@ export class UserService {
    */
   async user(
     where: Prisma.UserWhereUniqueInput,
-    include?: UserAuthIncludeOpts,
+    include?: UserIncludeOpts,
   ): Promise<User | null> {
     const user = await this.prisma.user.findUnique({ where, include });
     return user as User;

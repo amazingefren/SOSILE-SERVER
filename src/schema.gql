@@ -29,6 +29,16 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+type Comment {
+  id: Float!
+  content: String!
+  date: DateTime!
+  likes: [User!]
+  author: User
+  post: Post
+  _count: CommentCount
+}
+
 type PostHistory {
   id: Float
   content: String
@@ -48,8 +58,9 @@ type User {
   email: String!
   profile: UserProfile
   posts: [Post!]
-  likes: [Post!]
-  replies: [Post!]
+  comments: [Comment!]
+  postLikes: [Post!]
+  commentLikes: [Comment!]
   following: [User!]
   followers: [User!]
 }
@@ -60,8 +71,9 @@ type AuthUser {
   email: String!
   profile: UserProfile
   posts: [Post!]
-  likes: [Post!]
-  replies: [Post!]
+  comments: [Comment!]
+  postLikes: [Post!]
+  commentLikes: [Comment!]
   following: [User!]
   followers: [User!]
   role: String
@@ -70,21 +82,22 @@ type AuthUser {
 
 type Query {
   debugUsers: [User!]!
-  user(include: UserAuthIncludeOpts, where: UserUniqueInput!): User
-  whoAmI(include: UserAuthIncludeOpts): User!
+  user(include: UserIncludeOpts, where: UserUniqueInput!): User
+  whoAmI(include: UserIncludeOpts): User!
   userUnfollow(user: Float!): User!
   debugPosts: [Post!]!
   userPosts(include: PostIncludeOpts, user: Float): [Post!]
   AuthCheck: Boolean!
 }
 
-input UserAuthIncludeOpts {
+input UserIncludeOpts {
   followers: Boolean = false
   following: Boolean = false
-  likes: Boolean = false
+  postLikes: Boolean = false
+  commentLikes: Boolean = false
   posts: Boolean = false
   profile: Boolean = false
-  replies: Boolean = false
+  comments: Boolean = false
 }
 
 input UserUniqueInput {
@@ -97,8 +110,7 @@ input PostIncludeOpts {
   author: Boolean = false
   history: Boolean = false
   likes: Boolean = false
-  replies: Boolean = false
-  parents: Boolean = false
+  comments: Boolean = false
 }
 
 type Mutation {
