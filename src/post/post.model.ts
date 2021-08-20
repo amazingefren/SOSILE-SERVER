@@ -47,6 +47,20 @@ export class Post {
   _count?: PostCount;
 }
 
+@InputType()
+export class PostIncludeOpts {
+  @Field()
+  author?: boolean = false;
+  @Field()
+  history?: boolean = false;
+  @Field()
+  likes?: boolean = false;
+  @Field()
+  replies?: boolean = false;
+  @Field()
+  parents?: boolean = false;
+}
+
 @ObjectType()
 export class PostHistory {
   @Field(() => Number)

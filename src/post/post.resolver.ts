@@ -2,7 +2,7 @@ import { UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
 import { CurrentUser } from 'src/user/decorators/user.decorator';
-import { CreatePostInput, Post } from './post.model';
+import { CreatePostInput, Post, PostIncludeOpts } from './post.model';
 import { PostService } from './post.service';
 
 @Resolver()
@@ -28,10 +28,14 @@ export class PostResolver {
   async userPosts(
     @CurrentUser() currentUserId: number,
     @Args('user', { nullable: true }) requestUserId?: number,
+    @Args('include', { nullable: true }) include?: PostIncludeOpts,
     //Count?
     //Override?
   ) {
-    return this.postService.findUserPosts(requestUserId || currentUserId);
+    return await this.postService.findUserPosts(
+      requestUserId || currentUserId,
+      include,
+    );
   }
 
   @Mutation(() => Post)

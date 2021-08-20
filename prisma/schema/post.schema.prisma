@@ -12,8 +12,8 @@ model Post {
   // CURRENTLY THIS IS DOING 1->1->1
   // SO REPLY HAS 1 PARENT
   // AND REPLY HAS 1 REPLY THAT HAS 1 REPLY
-  replies       Post[]      @relation(name: "replied")
-  parents       Post[]      @relation(name: "replied")
+  replies       PostReply[] @relation(name: "reply")
+  parents       PostReply[] @relation(name: "parent")
   isReply       Boolean     @default(false)
 
   author        User    @relation(fields: [authorId], references: [id])
@@ -27,4 +27,13 @@ model PostHistory {
 
   parent    Post?   @relation(fields: [parentId], references: [id])
   parentId  Int?
+}
+
+model PostReply {
+  reply     Post @relation(name: "parent", fields:[replyId], references:[id])
+  replyId   Int
+  replyTo    Post @relation(name: "reply", fields:[replyToId], references:[id])
+  replyToId  Int
+
+  @@id([replyId, replyToId])
 }

@@ -71,7 +71,7 @@ type Query {
   whoAmI(include: UserAuthIncludeOpts): User!
   userUnfollow(user: Float!): User!
   debugPosts: [Post!]!
-  userPosts(user: Float): [Post!]!
+  userPosts(include: PostIncludeOpts, user: Float): [Post!]!
   AuthCheck: Boolean!
 }
 
@@ -88,6 +88,14 @@ input UserUniqueInput {
   id: Float
   username: String
   email: String
+}
+
+input PostIncludeOpts {
+  author: Boolean = false
+  history: Boolean = false
+  likes: Boolean = false
+  replies: Boolean = false
+  parents: Boolean = false
 }
 
 type Mutation {

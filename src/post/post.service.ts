@@ -1,6 +1,6 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreatePostInput, Post } from './post.model';
+import { CreatePostInput, Post, PostIncludeOpts } from './post.model';
 
 @Injectable()
 export class PostService {
@@ -13,6 +13,13 @@ export class PostService {
 
   async createPost(id: number, data: CreatePostInput): Promise<Post | null> {
     this.logger.debug(id + ' has posted: ' + data.content);
+    /* const post = await this.prisma.post.create({
+      data: {
+        author: { connect: { id } },
+        content: data.content,
+      },
+      include: { author: true },
+    }); */
     const post = await this.prisma.post.create({
       data: {
         author: { connect: { id } },
@@ -25,14 +32,16 @@ export class PostService {
 
   async findUserPosts(
     user: number,
+    include: PostIncludeOpts,
     // @TODO PostIncludeOptsIsTheMove100%REMINDER
     // @CHECKOUT UserAuthIncludeOpts<------------
   ) {
     return (await this.prisma.post.findMany({
       where: { authorId: user },
       include: {
-        author: true,
-        _count: { select: { likes: true } },
+        ...include,
+        // _COUNT CANNOT HAVE SELF RELATION LIKE REPLIES/PARENT????????????
+        _count: { select: { likes: true, history: true } },
       },
     })) as Post[];
   }
@@ -89,20 +98,22 @@ export class PostService {
     data: CreatePostInput,
     postId: number,
   ): Promise<Post | null> {
-    const newReply = await this.prisma.post.update({
-      where: { id: postId },
+    const newPost = await this.prisma.post.create({
       data: {
-        replies: {
-          create: {
-            content: data.content,
-            author: { connect: { id: user } },
-            isReply: true,
-          },
-        },
+        author: { connect: { id: user } },
+        content: data.content,
+        isReply: true,
       },
-      include: { replies: true },
     });
-    return newReply;
+
+    await this.prisma.postReply.create({
+      data: {
+        reply: { connect: { id: newPost.id } },
+        replyTo: { connect: { id: postId } },
+      },
+    });
+
+    return newPost;
   }
 
   async delete(user: number, postId: number): Promise<boolean> {
