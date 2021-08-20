@@ -29,6 +29,7 @@ export class PostResolver {
     @CurrentUser() currentUserId: number,
     @Args('user', { nullable: true }) requestUserId: number,
     @Args('likes', { nullable: true }) likes: boolean = false,
+    @Args('replies', { nullable: true }) replies: boolean = false,
     //Count?
     //Override?
   ) {
