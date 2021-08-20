@@ -90,20 +90,16 @@ export class Comment {
 
 @ObjectType()
 export class PostHistory {
-  @Field(() => Number)
-  id: number;
+  @Field(() => Number, { nullable: true })
+  id?: number;
 
-  @Field(() => String)
-  content: string;
+  @Field(() => String, { nullable: true })
+  content?: string;
 
-  @Field(() => Date)
-  date: Date;
+  @Field(() => Date, { nullable: true })
+  date?: Date;
 
-  /* 1 parent, or multiple: can be swapped later in relation to post.schema.ts
-   * parent: Post + parentId: Post.id (aka number)?
-   * or: parent => number || parent => post || parentId => number
-   */
-  @Field(() => Post)
+  @Field(() => Post, { nullable: true })
   parent?: Post;
 }
 

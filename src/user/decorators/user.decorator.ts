@@ -7,6 +7,7 @@ export const CurrentUser = createParamDecorator(
   (_, context: ExecutionContext) => {
     const { req }: { req: FastifyRequest } =
       GqlExecutionContext.create(context).getContext();
+    // @TODO, verify?
     return Number(jwt.decode(req.cookies.access_token).sub);
   },
 );

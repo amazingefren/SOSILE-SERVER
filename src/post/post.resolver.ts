@@ -1,16 +1,35 @@
 import { UseGuards } from '@nestjs/common';
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import {
+  Args,
+  Mutation,
+  Parent,
+  Query,
+  ResolveField,
+  Resolver,
+} from '@nestjs/graphql';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
 import { CurrentUser } from 'src/user/decorators/user.decorator';
-import { CreatePostInput, Post, PostIncludeOpts } from './post.model';
+import {
+  CreatePostInput,
+  Post,
+  PostHistory,
+  PostIncludeOpts,
+} from './post.model';
 import { PostService } from './post.service';
+import { Fields } from 'src/graphql/fields.decorator';
 
-@Resolver()
+@Resolver(() => Post)
 export class PostResolver {
   constructor(private postService: PostService) {}
 
+  /* MUTATIONS */
   @Query(() => [Post])
-  async debugPosts() {
+  async debugPosts(
+    // @Info()info:GraphQLResolveInfo
+    @Fields(PostIncludeOpts) info: PostIncludeOpts,
+  ) {
+    console.log(info);
+    // console.log(Object.keys(graphqlFields(info)))
     return this.postService.allPosts();
   }
 
@@ -23,21 +42,6 @@ export class PostResolver {
     return this.postService.createPost(user, data);
   }
 
-  @Query(() => [Post])
-  @UseGuards(AuthGuard)
-  async userPosts(
-    @CurrentUser() currentUserId: number,
-    @Args('user', { nullable: true }) requestUserId?: number,
-    @Args('include', { nullable: true }) include?: PostIncludeOpts,
-    //Count?
-    //Override?
-  ) {
-    return await this.postService.findUserPosts(
-      requestUserId || currentUserId,
-      include,
-    );
-  }
-
   @Mutation(() => Post)
   @UseGuards(AuthGuard)
   async updatePost(
@@ -46,6 +50,15 @@ export class PostResolver {
     @Args('postId') postId: number,
   ) {
     return this.postService.editPost(user, data, postId);
+  }
+
+  @Mutation(() => Boolean)
+  @UseGuards(AuthGuard)
+  async deletePost(
+    @CurrentUser() user: number,
+    @Args('postId') postId: number,
+  ) {
+    return this.postService.delete(user, postId);
   }
 
   @Mutation(() => Boolean)
@@ -67,12 +80,25 @@ export class PostResolver {
     return this.postService.postNewReply(user, data, postId);
   }
 
-  @Mutation(() => Boolean)
+  /* QUERY */
+  @Query(() => [Post], { nullable: true })
   @UseGuards(AuthGuard)
-  async deletePost(
-    @CurrentUser() user: number,
-    @Args('postId') postId: number,
+  async userPosts(
+    @CurrentUser() currentUserId: number,
+    @Args('user', { nullable: true }) requestUserId?: number,
+    @Args('include', { nullable: true }) include?: PostIncludeOpts,
+    //Count?
+    //Override?
   ) {
-    return this.postService.delete(user, postId);
+    return await this.postService.findUserPosts(
+      requestUserId || currentUserId,
+      include,
+    );
+  }
+
+  /* FIELD RESOLVER */
+  @ResolveField('history', (_) => [PostHistory])
+  async getHistory(@Parent() post: Post) {
+    return await this.postService.getPostHistory(post.id);
   }
 }

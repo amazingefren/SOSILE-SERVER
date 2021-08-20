@@ -17,7 +17,7 @@ type Post {
   content: String!
   date: DateTime!
   updated: DateTime!
-  history: [PostHistory!]
+  history: [PostHistory!]!
   likes: [User!]
   comments: [Post!]
   parents: [Post!]
@@ -30,10 +30,10 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 scalar DateTime
 
 type PostHistory {
-  id: Float!
-  content: String!
-  date: DateTime!
-  parent: Post!
+  id: Float
+  content: String
+  date: DateTime
+  parent: Post
 }
 
 type UserProfile {
@@ -74,7 +74,7 @@ type Query {
   whoAmI(include: UserAuthIncludeOpts): User!
   userUnfollow(user: Float!): User!
   debugPosts: [Post!]!
-  userPosts(include: PostIncludeOpts, user: Float): [Post!]!
+  userPosts(include: PostIncludeOpts, user: Float): [Post!]
   AuthCheck: Boolean!
 }
 
@@ -105,9 +105,9 @@ type Mutation {
   userFollow(user: Float!): User!
   createPost(data: CreatePostInput!): Post!
   updatePost(postId: Float!, data: CreatePostInput!): Post!
+  deletePost(postId: Float!): Boolean!
   postLikeToggle(postId: Float!): Boolean!
   postCreateReply(postId: Float!, data: CreatePostInput!): Post!
-  deletePost(postId: Float!): Boolean!
   AuthRegisterUser(data: AuthRegisterUserInput!): User!
   AuthLoginUser(data: AuthLoginUserInput!): AuthUser!
   AuthRefresh: Boolean!

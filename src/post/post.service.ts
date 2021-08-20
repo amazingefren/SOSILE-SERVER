@@ -127,4 +127,16 @@ export class PostService {
       throw new UnauthorizedException();
     }
   }
+
+  async getPostHistory(postId: number) {
+    this.logger.debug('Getting Post History');
+    const data = await this.prisma.post.findMany({
+      where: { id: postId },
+      select: {
+        history: true,
+      },
+    });
+    // this.logger.debug(data)
+    return data;
+  }
 }
