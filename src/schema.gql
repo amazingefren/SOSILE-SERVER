@@ -86,6 +86,7 @@ input UserUniqueInput {
 type Mutation {
   userFollow(user: Float!): User!
   createPost(data: CreatePostInput!): Post!
+  userPosts: [Post!]!
   updatePost(postId: Float!, data: CreatePostInput!): Post!
   postLikeToggle(postId: Float!): Boolean!
   postCreateReply(postId: Float!, data: CreatePostInput!): Post!

@@ -23,6 +23,13 @@ export class PostService {
     return post as Post;
   }
 
+  async findUserPosts(user: number) {
+    const payload = await this.prisma.post.findMany({
+      where: { authorId: user },
+    });
+    return payload;
+  }
+
   async editPost(
     user: number,
     data: CreatePostInput,

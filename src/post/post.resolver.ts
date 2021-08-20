@@ -23,6 +23,16 @@ export class PostResolver {
     return this.postService.createPost(user, data);
   }
 
+  @Mutation(() => [Post])
+  @UseGuards(AuthGuard)
+  async userPosts(
+    @CurrentUser() user: number,
+    //Count?
+    //Override?
+  ) {
+    return this.postService.findUserPosts(user);
+  }
+
   @Mutation(() => Post)
   @UseGuards(AuthGuard)
   async updatePost(
