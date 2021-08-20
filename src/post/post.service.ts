@@ -23,19 +23,18 @@ export class PostService {
     return post as Post;
   }
 
-  async findUserPosts(user: number, likes: boolean = false) {
-    if (likes) {
-      return (await this.prisma.post.findMany({
-        where: { authorId: user },
-        include: {
-          _count: { select: { likes } },
-        },
-      })) as Post[];
-    } else {
-      return (await this.prisma.post.findMany({
-        where: { authorId: user },
-      })) as Post[];
-    }
+  async findUserPosts(
+    user: number,
+    // @TODO PostIncludeOptsIsTheMove100%REMINDER
+    // @CHECKOUT UserAuthIncludeOpts<------------
+  ) {
+    return (await this.prisma.post.findMany({
+      where: { authorId: user },
+      include: {
+        author: true,
+        _count: { select: { likes: true } },
+      },
+    })) as Post[];
   }
 
   async editPost(

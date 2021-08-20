@@ -27,17 +27,11 @@ export class PostResolver {
   @UseGuards(AuthGuard)
   async userPosts(
     @CurrentUser() currentUserId: number,
-    @Args('user', { nullable: true }) requestUserId: number,
-    @Args('likes', { nullable: true }) likes: boolean = false,
-    @Args('replies', { nullable: true }) replies: boolean = false,
+    @Args('user', { nullable: true }) requestUserId?: number,
     //Count?
     //Override?
   ) {
-    if (!requestUserId) {
-      return this.postService.findUserPosts(currentUserId, likes);
-    } else {
-      return this.postService.findUserPosts(requestUserId, likes);
-    }
+    return this.postService.findUserPosts(requestUserId || currentUserId);
   }
 
   @Mutation(() => Post)

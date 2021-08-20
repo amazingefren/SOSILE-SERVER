@@ -71,7 +71,7 @@ type Query {
   whoAmI(include: UserAuthIncludeOpts): User!
   userUnfollow(user: Float!): User!
   debugPosts: [Post!]!
-  userPosts(replies: Boolean, likes: Boolean, user: Float): [Post!]!
+  userPosts(user: Float): [Post!]!
   AuthCheck: Boolean!
 }
 
