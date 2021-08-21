@@ -146,7 +146,12 @@ export class PostService {
   ): Promise<Post[] | null> {
     const data = await this.prisma.post.findMany({
       where: { author: { followers: { some: { followerId: user } } } },
-      include,
+      include: {
+        ...include,
+        _count: {
+          select: { comments: true, likes: true },
+        },
+      },
       orderBy: { date: 'desc' },
       take: 12,
     });
