@@ -135,7 +135,6 @@ export class PostService {
       where: { authorId: user },
       include: {
         ...include,
-        // _COUNT CANNOT HAVE SELF RELATION LIKE REPLIES/PARENT????????????
         _count: { select: { likes: true, comments: true } },
       },
     })) as Post[];

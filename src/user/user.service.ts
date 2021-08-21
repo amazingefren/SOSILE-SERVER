@@ -1,69 +1,68 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { User, Prisma } from '@prisma/client';
-import { UserIncludeOpts, UserProfile } from './user.model';
+import { UserIncludeOpts } from './user.model';
 // import { UserCreateInput } from './user.model';
 
 @Injectable()
 export class UserService {
   constructor(private prisma: PrismaService) {}
 
-  async allUsers(): Promise<User[] | null> {
-    const user = await this.prisma.user.findMany();
-    return user;
+  async allUsers(include: UserIncludeOpts): Promise<User[] | null> {
+    const users = await this.prisma.user.findMany({ include });
+    return users;
   }
 
-  /**
-   * Search for user in database
-   * @param where number
-   * @param include? UserAuthIncludeOpts (optional)
-   * @returns User
-   */
-  async user(
+  async findUser(
     where: Prisma.UserWhereUniqueInput,
-    include?: UserIncludeOpts,
+    include: UserIncludeOpts,
   ): Promise<User | null> {
     const user = await this.prisma.user.findUnique({ where, include });
     return user as User;
   }
 
-  async userFollow(follower: number, following: number): Promise<User | null> {
-    const updated = await this.prisma.user.update({
-      where: { id: follower },
-      data: {
-        /* following: {
-          connectOrCreate: {
-            where: { id: following },
-            create: { User: { connect: { id: following } } },
-          }, 
-      }, */
-        // following: { connect: { id: following } },
-        following: { create: { following: { connect: { id: following } } } },
-      },
-      include: { following: true },
-    });
-    console.log(updated);
-    return updated;
-  }
-
-  async userUnfollow(
+  async userFollow(
     follower: number,
     following: number,
-  ): Promise<User | null> {
-    const updated = await this.prisma.user.update({
-      where: { id: follower },
-      data: {
-        following: {
-          delete: {
-            followerId_followingId: {
+  ): Promise<Boolean | null> {
+    if (follower != following) {
+      await this.prisma.user.update({
+        where: { id: follower },
+        data: {
+          following: {
+            create: {
               followingId: following,
-              followerId: follower,
             },
           },
         },
-      },
-      include: { following: true },
-    });
-    return updated;
+      });
+      return true;
+    } else {
+      return false;
+    }
+  }
+  async userUnfollow(
+    follower: number,
+    following: number,
+  ): Promise<Boolean | null> {
+    if (follower != following) {
+      await this.prisma.user.update({
+        where: { id: follower },
+        data: {
+          following: {
+            delete: {
+              followerId_followingId: {
+                followingId: following,
+                followerId: follower,
+              },
+            },
+          },
+        },
+        include: { following: true },
+      });
+      return true;
+    } else {
+      return false;
+    }
   }
 }

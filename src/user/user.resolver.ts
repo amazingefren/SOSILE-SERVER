@@ -1,61 +1,57 @@
 import 'reflect-metadata';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { User, UserIncludeOpts, UserUniqueInput } from './user.model';
+import { User, UserIncludeOpts } from './user.model';
 import { UserService } from './user.service';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
-import { UseGuards, ForbiddenException } from '@nestjs/common';
+import { UseGuards } from '@nestjs/common';
 import { CurrentUser } from './decorators/user.decorator';
+import { Fields } from 'src/graphql/fields.decorator';
 
 @Resolver(User)
 export class UserResolver {
   constructor(private userService: UserService) {}
 
   @Query(() => [User])
-  async debugUsers() {
-    return this.userService.allUsers();
+  async debugUsers(@Fields(UserIncludeOpts) opts: UserIncludeOpts) {
+    return this.userService.allUsers(opts);
   }
 
   @Query(() => User, { nullable: true })
-  async user(
-    @Args('where', { nullable: false }) where: UserUniqueInput,
-    @Args('include', { nullable: true }) include: UserIncludeOpts,
+  async findUserById(
+    @Args('id') id: number,
+    @Fields(UserIncludeOpts) opts: UserIncludeOpts,
   ) {
-    const { id, username, email } = where;
-    if (id) {
-      return this.userService.user({ id }, include);
-    } else if (username) {
-      return this.userService.user({ username }, include);
-    } else if (email) {
-      return this.userService.user({ email }, include);
-    } else {
-      throw new ForbiddenException('Invalid Inputs');
-    }
+    return this.userService.findUser({ id }, opts);
   }
 
   @Query(() => User)
   @UseGuards(AuthGuard)
   async whoAmI(
-    @CurrentUser() user: number,
-    @Args('include', { nullable: true }) include: UserIncludeOpts,
+    @CurrentUser() id: number,
+    @Fields(UserIncludeOpts) opts: UserIncludeOpts,
   ) {
-    return this.userService.user({ id: user }, include);
+    return this.userService.findUser({ id }, opts);
   }
 
-  @Mutation(() => User)
+  @Mutation(() => Boolean)
   @UseGuards(AuthGuard)
   async userFollow(
     @CurrentUser() follower: number,
     @Args('user', { nullable: false }) following: number,
-  ): Promise<User | null> {
-    return this.userService.userFollow(follower, following);
+  ): Promise<Boolean | null> {
+    return this.userService.userFollow(follower, following).catch(() => {
+      throw new Error('Not Following');
+    });
   }
 
-  @Query(() => User)
+  @Query(() => Boolean)
   @UseGuards(AuthGuard)
   async userUnfollow(
     @CurrentUser() user: number,
     @Args('user', { nullable: false }) following: number,
   ) {
-    return this.userService.userUnfollow(user, following);
+    return this.userService.userUnfollow(user, following).catch(() => {
+      throw new Error('Not Following');
+    });
   }
 }

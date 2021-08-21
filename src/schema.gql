@@ -82,32 +82,16 @@ type AuthUser {
 
 type Query {
   debugUsers: [User!]!
-  user(include: UserIncludeOpts, where: UserUniqueInput!): User
-  whoAmI(include: UserIncludeOpts): User!
-  userUnfollow(user: Float!): User!
+  findUserById(id: Float!): User
+  whoAmI: User!
+  userUnfollow(user: Float!): Boolean!
   debugPosts: [Post!]!
   findPostById(user: Float): [Post!]
   AuthCheck: Boolean!
 }
 
-input UserIncludeOpts {
-  followers: Boolean = false
-  following: Boolean = false
-  postLikes: Boolean = false
-  commentLikes: Boolean = false
-  posts: Boolean = false
-  profile: Boolean = false
-  comments: Boolean = false
-}
-
-input UserUniqueInput {
-  id: Float
-  username: String
-  email: String
-}
-
 type Mutation {
-  userFollow(user: Float!): User!
+  userFollow(user: Float!): Boolean!
   createPost(data: CreatePostInput!): Post!
   editPost(postId: Float!, data: CreatePostInput!): Post!
   deletePost(postId: Float!): Boolean!
