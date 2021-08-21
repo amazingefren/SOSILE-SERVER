@@ -139,4 +139,17 @@ export class PostService {
       },
     })) as Post[];
   }
+
+  async getFeed(
+    user: number,
+    include: PostIncludeOpts,
+  ): Promise<Post[] | null> {
+    const data = await this.prisma.post.findMany({
+      where: { author: { followers: { some: { followerId: user } } } },
+      include,
+      orderBy: { date: 'desc' },
+      take: 12,
+    });
+    return data || null;
+  }
 }

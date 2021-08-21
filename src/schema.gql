@@ -87,6 +87,7 @@ type Query {
   userUnfollow(user: Float!): Boolean!
   debugPosts: [Post!]!
   findPostById(user: Float): [Post!]
+  getFeed: [Post!]
   AuthCheck: Boolean!
 }
 

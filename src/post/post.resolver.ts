@@ -109,4 +109,15 @@ export class PostResolver {
         throw new Error('Not Found');
       });
   }
+
+  @Query(() => [Post], { nullable: true })
+  @UseGuards(AuthGuard)
+  async getFeed(
+    @CurrentUser() currentUserId: number,
+    @Fields(PostIncludeOpts) opts: PostIncludeOpts,
+  ) {
+    return await this.postService.getFeed(currentUserId, opts).catch(() => {
+      throw new Error('Not Found');
+    });
+  }
 }
