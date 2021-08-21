@@ -1,5 +1,6 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { User } from 'src/user/user.model';
 import {
   CreatePostInput,
   Post,
@@ -144,10 +145,11 @@ export class PostService {
     user: number,
     include: PostIncludeOpts,
   ): Promise<Post[] | null> {
-    const data = await this.prisma.post.findMany({
+    let data = await this.prisma.post.findMany({
       where: { author: { followers: { some: { followerId: user } } } },
       include: {
         ...include,
+        author: { select: { id: true } },
         _count: {
           select: { comments: true, likes: true },
         },
@@ -155,6 +157,90 @@ export class PostService {
       orderBy: { date: 'desc' },
       take: 12,
     });
-    return data || null;
+
+    let searchUsers = {};
+    data.forEach((item, index) => {
+      /* console.log(item)
+      console.log(index) */
+      searchUsers[item.author.id] = searchUsers[item.author.id]
+        ? [...searchUsers[item.authorId], index]
+        : [index];
+    });
+    // console.log(searchUsers)
+
+    /* holy shit */
+    /* half the time of all 30 methods i've tried */
+    /* I spent way too long on this and probably isn't even worth it */
+    /* OVERALL 50% REDUCTION COMPARED TO ANY OTHER METHOD, I WONT BE LOADING A MILLION POSTS AT
+     * A TIME SO THIS WILL WORK*/
+    /* leaving the rest of the comments for now, wanna test some more*/
+    /* @NOTE: prisma breaks when including relation _count */
+    /* @NOTE2: by doing this, i can avoid a seperate call for client*/
+    /* and pull author follower count, I honestly should've just a seperate call */
+    /* but this was fun */
+
+    let payload = [];
+    // emulating high loads
+    // for (let i of Array(10)) {
+    /* const count = await this.prisma.user.findUnique({
+        where: { id: Number(1) },
+        include: { _count: { select: { followers: true } } },
+      }); */
+    for (const id of Object.keys(searchUsers)) {
+      /* const user = await this.prisma.user.findUnique({
+          where: { id: Number(id) },
+          include: { _count: { select: { followers: true } } },
+        }); */
+      const count = await this.prisma.user.findUnique({
+        where: { id: Number(id) },
+        include: {
+          _count: { select: { followers: true } },
+        },
+      });
+      Object.values(searchUsers[id]).forEach((index: number) => {
+        payload[index] = data[index];
+        payload[index].author = count;
+      });
+    }
+    // }
+    // console.log(payload[0].author._count);
+    /* Too Expensive
+    for (let i = 0; i < data.length; i++) {
+      data[i].author = (await this.prisma.user.findFirst({
+        where: { posts: { some: { id: data[i].id } } },
+        include: {
+          _count: { select: { followers: true, following: true } },
+        },
+      })) as User;
+    }
+    console.log(data); */
+    /* data.forEach(async (item, index) => {
+      const {author, ...rest} = item
+      console.log(item)
+      payload[index] = rest;
+      payload[index].author = await this.prisma.user.findFirst({
+        where: { posts: { some: { id: item.author.id } } },
+        include: {
+          _count: { select: { followers: true, following: true } },
+        },
+      }) as User;
+    });
+    console.log(payload)*/
+
+    /* let payload = [];
+
+    await Promise.all(data.map(async (item, index) => {
+      payload[index] = item;
+      payload[index].author = (await this.prisma.user.findFirst({
+        where: { posts: { some: { id: item.author.id } } },
+        include: {
+          _count: { select: { followers: true, following: true } },
+        },
+      })) as User;
+      return;
+    })) 
+    console.log(payload) */
+
+    return payload;
   }
 }

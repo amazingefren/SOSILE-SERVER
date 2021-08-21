@@ -52,6 +52,11 @@ type UserProfile {
   userId: Float!
 }
 
+type UserCount {
+  followers: Float!
+  following: Float!
+}
+
 type User {
   id: Int!
   username: String!
@@ -63,6 +68,7 @@ type User {
   commentLikes: [Comment!]
   following: [User!]
   followers: [User!]
+  _count: UserCount
 }
 
 type AuthUser {
@@ -76,6 +82,7 @@ type AuthUser {
   commentLikes: [Comment!]
   following: [User!]
   followers: [User!]
+  _count: UserCount
   role: String
   token: String
 }

@@ -13,6 +13,13 @@ export class UserProfile {
   userId: number;
 }
 @ObjectType()
+class UserCount {
+  @Field(() => Number)
+  followers?: number;
+  @Field(() => Number)
+  following?: number;
+}
+@ObjectType()
 export class User {
   @Field(() => Int)
   id: number;
@@ -37,6 +44,8 @@ export class User {
   following?: User[];
   @Field(() => [User], { nullable: true })
   followers?: User[];
+  @Field(() => UserCount, { nullable: true })
+  _count?: UserCount;
 }
 @InputType()
 export class UserIncludeOpts {
