@@ -5,7 +5,6 @@ import {
   AuthUser,
 } from './auth.model';
 import { AuthService } from './auth.service';
-import { User } from '../user/user.model';
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from './guards/auth.guard';
@@ -14,7 +13,7 @@ import { AuthGuard } from './guards/auth.guard';
 export class AuthResolver {
   constructor(private authService: AuthService) {}
 
-  @Mutation(() => User)
+  @Mutation(() => AuthUser)
   async AuthRegisterUser(
     @Args('data') data: AuthRegisterUserInput,
     @Context() { res }: { res: FastifyReply },

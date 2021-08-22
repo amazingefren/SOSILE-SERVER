@@ -60,6 +60,7 @@ type UserCount {
 type User {
   id: Int!
   username: String!
+  displayName: String!
   email: String!
   profile: UserProfile
   posts: [Post!]
@@ -74,6 +75,7 @@ type User {
 type AuthUser {
   id: Int!
   username: String!
+  displayName: String!
   email: String!
   profile: UserProfile
   posts: [Post!]
@@ -83,8 +85,8 @@ type AuthUser {
   following: [User!]
   followers: [User!]
   _count: UserCount
-  role: String
-  token: String
+  role: String!
+  token: String!
 }
 
 type Query {
@@ -107,7 +109,7 @@ type Mutation {
   postLikeToggle(postId: Float!): Boolean!
   createComment(postId: Float!, data: CreatePostInput!): Comment!
   deleteComment(commentId: Float!): Boolean!
-  AuthRegisterUser(data: AuthRegisterUserInput!): User!
+  AuthRegisterUser(data: AuthRegisterUserInput!): AuthUser!
   AuthLoginUser(data: AuthLoginUserInput!): AuthUser!
   AuthRefresh: Boolean!
   AuthLogout: Boolean!
@@ -121,6 +123,7 @@ input AuthRegisterUserInput {
   email: String!
   username: String!
   password: String!
+  displayName: String!
 }
 
 input AuthLoginUserInput {
