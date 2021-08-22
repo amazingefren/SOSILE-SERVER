@@ -27,6 +27,10 @@ export class User {
   @Length(1, 16)
   @IsString()
   username: string;
+  @Field(() => String)
+  @Length(1, 16)
+  @IsString()
+  displayName?: string;
   @Field()
   @IsEmail()
   email: string;

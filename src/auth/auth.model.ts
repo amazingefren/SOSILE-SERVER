@@ -8,13 +8,19 @@ type Role = 'USER' | 'ADMIN';
 @ObjectType()
 export class AuthUser extends User {
   // Authorization
-  @Field(() => String, { nullable: true })
+  @Field(() => String)
   @IsString()
   role?: Role;
 
-  @Field(() => String, { nullable: true })
+  @Field(() => String)
   @IsString()
   token?: Role;
+}
+
+@ObjectType()
+export class Test {
+  @Field(() => String)
+  token: string;
 }
 
 @InputType()
@@ -29,6 +35,9 @@ export class AuthRegisterUserInput {
 
   @Field()
   password: string;
+
+  @Field()
+  displayName: string;
 }
 
 @InputType()
