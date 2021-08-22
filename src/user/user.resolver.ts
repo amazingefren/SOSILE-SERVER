@@ -54,4 +54,13 @@ export class UserResolver {
       throw new Error('Not Following');
     });
   }
+
+  @Query(() => [User])
+  @UseGuards(AuthGuard)
+  async userSearch(@Args('where') username: string) {
+    return this.userService.userSearch(username).catch((e) => {
+      console.log(e);
+      throw new Error('Something Went Wrong');
+    });
+  }
 }

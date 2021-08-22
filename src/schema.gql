@@ -92,6 +92,7 @@ type Query {
   findUserById(id: Float!): User
   whoAmI: User!
   userUnfollow(user: Float!): Boolean!
+  userSearch(where: String!): [User!]!
   debugPosts: [Post!]!
   findPostById(user: Float): [Post!]
   getFeed: [Post!]
