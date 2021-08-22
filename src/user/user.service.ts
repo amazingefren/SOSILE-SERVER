@@ -77,21 +77,14 @@ export class UserService {
   async userSearch(search: string) {
     // PROCESS search INPUT HERE
     // @NOTE THIS IS UNSAFE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    // @NOTE THIS IS UNSAFE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    // @NOTE THIS IS UNSAFE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    // @NOTE THIS IS UNSAFE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    // @NOTE THIS IS UNSAFE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    // @NOTE THIS IS UNSAFE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    // @NOTE THIS IS UNSAFE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    // @NOTE THIS IS UNSAFE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    // @NOTE THIS IS UNSAFE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    // @NOTE THIS IS UNSAFE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    // @NOTE THIS IS UNSAFE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
+    const temp = search.match(/[a-zA-Z0-9]/gi);
+    console.log(temp);
     // This will work for now, in real-world, indexing + sml_score filter for performance
     const data = await this.prisma.$queryRaw(
-      `SELECT *, similarity(username, '${search}') AS sml FROM "User" ORDER BY sml DESC LIMIT 5`,
+      `SELECT id,username,similarity(username, '${temp}') AS sml FROM "User" ORDER BY sml DESC LIMIT 5`,
     );
+    // Elasticsearch Probably
+    // But this is just a demo anyways
     console.log(data);
     return data as User[];
   }
