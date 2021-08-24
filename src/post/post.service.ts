@@ -192,8 +192,10 @@ export class PostService {
       Object.values(searchUsers[id]).forEach((index: number) => {
         payload[index] = data[index];
         payload[index].author = count;
-        if (data[index].likes) {
+        if (data[index].likes[0]) {
           payload[index].liked = true;
+        } else {
+          payload[index].liked = false;
         }
       });
     }
