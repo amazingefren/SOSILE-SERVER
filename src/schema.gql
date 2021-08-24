@@ -19,6 +19,7 @@ type Post {
   updated: DateTime!
   history: [PostHistory!]
   likes: [User!]
+  liked: Boolean
   comments: [Post!]
   parents: [Post!]
   _count: PostCount
@@ -44,6 +45,17 @@ type PostHistory {
   content: String
   date: DateTime
   parent: Post
+}
+
+type FeedPost {
+  id: Float!
+  author: User
+  content: String!
+  date: DateTime!
+  updated: DateTime!
+  history: [PostHistory!]
+  liked: Boolean
+  _count: PostCount
 }
 
 type UserProfile {
@@ -97,7 +109,7 @@ type Query {
   userSearch(where: String!): [User!]!
   debugPosts: [Post!]!
   findPostById(user: Float): [Post!]
-  getFeed: [Post!]
+  getFeed: [FeedPost!]
   AuthCheck: Boolean!
 }
 

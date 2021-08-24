@@ -30,6 +30,8 @@ export class Post {
   history?: PostHistory[];
   @Field(() => [User], { nullable: true })
   likes?: User[];
+  @Field(() => Boolean, { nullable: true })
+  liked?: Boolean;
   @Field(() => [Post], { nullable: true })
   comments?: Comment[];
   @Field(() => [Post], { nullable: true })
@@ -89,4 +91,25 @@ export class PostHistory {
 export class CreatePostInput {
   @Field({ nullable: false })
   content: string;
+}
+@ObjectType()
+export class FeedPost {
+  @Field(() => Number)
+  id: number;
+  @Field(() => User, { nullable: true })
+  author?: User;
+  @Field(() => String)
+  content: string;
+  @Field(() => Date)
+  date: Date;
+  @Field(() => Date)
+  updated: Date;
+  @Field(() => [PostHistory], { nullable: true })
+  history?: PostHistory[];
+  @Field(() => Boolean, { nullable: true })
+  liked?: Boolean;
+  /* @Field(() => [Post], { nullable: true })
+  parents?: Post[]; */
+  @Field(() => PostCount, { nullable: true })
+  _count?: PostCount;
 }

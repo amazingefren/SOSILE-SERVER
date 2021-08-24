@@ -5,6 +5,7 @@ import {
   Comment,
   PostIncludeOpts,
   CommentIncludeOpts,
+  FeedPost,
 } from './post.model';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
 import { CurrentUser } from 'src/user/decorators/user.decorator';
@@ -110,7 +111,7 @@ export class PostResolver {
       });
   }
 
-  @Query(() => [Post], { nullable: true })
+  @Query(() => [FeedPost], { nullable: true })
   @UseGuards(AuthGuard)
   async getFeed(
     @CurrentUser() currentUserId: number,

@@ -7,6 +7,7 @@ import {
   PostIncludeOpts,
   Comment,
   CommentIncludeOpts,
+  FeedPost,
 } from './post.model';
 
 @Injectable()
@@ -144,11 +145,12 @@ export class PostService {
   async getFeed(
     user: number,
     include: PostIncludeOpts,
-  ): Promise<Post[] | null> {
+  ): Promise<FeedPost[] | null> {
     let data = await this.prisma.post.findMany({
       where: { author: { followers: { some: { followerId: user } } } },
       include: {
         ...include,
+        likes: { where: { id: user } },
         author: { select: { id: true } },
         _count: {
           select: { comments: true, likes: true },
@@ -168,7 +170,6 @@ export class PostService {
     });
     // console.log(searchUsers)
 
-    /* holy shit */
     /* half the time of all 30 methods i've tried */
     /* I spent way too long on this and probably isn't even worth it */
     /* OVERALL 50% REDUCTION COMPARED TO ANY OTHER METHOD, I WONT BE LOADING A MILLION POSTS AT
@@ -180,17 +181,8 @@ export class PostService {
     /* but this was fun */
 
     let payload = [];
-    // emulating high loads
-    // for (let i of Array(10)) {
-    /* const count = await this.prisma.user.findUnique({
-        where: { id: Number(1) },
-        include: { _count: { select: { followers: true } } },
-      }); */
+
     for (const id of Object.keys(searchUsers)) {
-      /* const user = await this.prisma.user.findUnique({
-          where: { id: Number(id) },
-          include: { _count: { select: { followers: true } } },
-        }); */
       const count = await this.prisma.user.findUnique({
         where: { id: Number(id) },
         include: {
@@ -200,46 +192,11 @@ export class PostService {
       Object.values(searchUsers[id]).forEach((index: number) => {
         payload[index] = data[index];
         payload[index].author = count;
+        if (data[index].likes) {
+          payload[index].liked = true;
+        }
       });
     }
-    // }
-    // console.log(payload[0].author._count);
-    /* Too Expensive
-    for (let i = 0; i < data.length; i++) {
-      data[i].author = (await this.prisma.user.findFirst({
-        where: { posts: { some: { id: data[i].id } } },
-        include: {
-          _count: { select: { followers: true, following: true } },
-        },
-      })) as User;
-    }
-    console.log(data); */
-    /* data.forEach(async (item, index) => {
-      const {author, ...rest} = item
-      console.log(item)
-      payload[index] = rest;
-      payload[index].author = await this.prisma.user.findFirst({
-        where: { posts: { some: { id: item.author.id } } },
-        include: {
-          _count: { select: { followers: true, following: true } },
-        },
-      }) as User;
-    });
-    console.log(payload)*/
-
-    /* let payload = [];
-
-    await Promise.all(data.map(async (item, index) => {
-      payload[index] = item;
-      payload[index].author = (await this.prisma.user.findFirst({
-        where: { posts: { some: { id: item.author.id } } },
-        include: {
-          _count: { select: { followers: true, following: true } },
-        },
-      })) as User;
-      return;
-    })) 
-    console.log(payload) */
 
     return payload;
   }
