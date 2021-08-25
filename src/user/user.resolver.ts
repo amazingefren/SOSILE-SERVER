@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { User, UserIncludeOpts } from './user.model';
+import { User, UserIncludeOpts, UserProfile } from './user.model';
 import { UserService } from './user.service';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
 import { UseGuards } from '@nestjs/common';
@@ -61,6 +61,28 @@ export class UserResolver {
     return this.userService.userSearch(username).catch((e) => {
       console.log(e);
       throw new Error('Something Went Wrong');
+    });
+  }
+
+  /* @Query(() => UserProfile)
+  @UseGuards(AuthGuard)
+  async userProfile(
+    @CurrentUser() id: number,
+    @Args('username', { nullable: true }) username?: string,
+  ) {
+    return this.userService.userProfile(username ? username : id).catch(() => {
+      throw new Error('Could not find profile');
+    });
+  } */
+
+  @Query(() => User)
+  @UseGuards(AuthGuard)
+  async findUserByUsername(
+    @Args('username', { nullable: false }) username: string,
+    @Fields(UserIncludeOpts) opts: UserIncludeOpts,
+  ) {
+    return this.userService.findUser({ username }, opts).catch(() => {
+      throw new Error('Could not find user');
     });
   }
 }

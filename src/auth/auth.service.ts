@@ -48,9 +48,13 @@ export class AuthService {
    */
   async RegisterUser(data: AuthRegisterUserInput): Promise<Boolean | Error> {
     const hashedPassword = await this.HashPassword(data.password);
-    await this.prisma.user
+    const user = await this.prisma.user
       .create({
-        data: { ...data, password: hashedPassword },
+        data: {
+          ...data,
+          password: hashedPassword,
+          profile: { create: { biography: 'Demo', username: data.username } },
+        },
       })
       .catch(async (e) => {
         if (e instanceof Prisma.PrismaClientKnownRequestError) {
@@ -61,6 +65,11 @@ export class AuthService {
         this.logger.error(e);
         throw new Error('Something Went Wrong!');
       });
+
+    /* await this.prisma.user.update({
+      data: { profile: { create: { biography: 'hi' } } },
+      where: { id: user.id },
+    }); */
     return true;
   }
 

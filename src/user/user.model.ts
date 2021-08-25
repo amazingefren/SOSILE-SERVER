@@ -11,6 +11,8 @@ export class UserProfile {
   biography: string;
   @Field(() => Number)
   userId: number;
+  @Field(() => Int)
+  username: string;
 }
 @ObjectType()
 class UserCount {

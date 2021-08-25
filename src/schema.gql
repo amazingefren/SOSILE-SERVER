@@ -62,6 +62,7 @@ type UserProfile {
   id: Int!
   biography: String!
   userId: Float!
+  username: Int!
 }
 
 type UserCount {
@@ -107,6 +108,7 @@ type Query {
   whoAmI: User!
   userUnfollow(user: Float!): Boolean!
   userSearch(where: String!): [User!]!
+  findUserByUsername(username: String!): User!
   debugPosts: [Post!]!
   findPostById(user: Float): [Post!]
   getFeed: [FeedPost!]
