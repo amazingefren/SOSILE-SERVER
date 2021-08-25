@@ -142,7 +142,7 @@ export class AuthService {
         date: tokenTable.timestamp,
       },
       this.CONFIG.rtSecret,
-      { expiresIn: '2m' },
+      { expiresIn: '1d' },
     );
     // Assign JWT Token to empty entity
     const final = await this.prisma.rToken.update({
@@ -194,7 +194,7 @@ export class AuthService {
       throw new UnauthorizedException();
     }
     const jwtPayload: any = jwt.verify(token, this.CONFIG.atSecret, {
-      ignoreExpiration: true,
+      // ignoreExpiration: true,
     });
     if (opts.getPayload == true) {
       return jwtPayload;
@@ -228,7 +228,7 @@ export class AuthService {
   ): Promise<boolean | AuthUser> {
     const token = this.adjustRefreshToken(unformattedToken);
     const jwtPayload: any = jwt.verify(token, this.CONFIG.rtSecret, {
-      ignoreExpiration: true,
+      // ignoreExpiration: true,
     });
     try {
       const data = await this.prisma.rToken.findUnique({
