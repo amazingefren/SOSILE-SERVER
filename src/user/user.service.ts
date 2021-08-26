@@ -84,9 +84,9 @@ export class UserService {
     }
   }
 
-  /**
+  /** @IMPORTANT
    * SHOW search_paths
-   * SET search_paths TO {schema name}
+   * SET search_paths TO {schema name} // i'm using "PUBLIC"
    * CREATE EXTENSION pg_trgm
    * SET pg_trgm.similarity_threshold = 0.8;
    * CREATE INDEX CONCURRENTLY index_user_on_username_trigram ON "User" USING gin (username gin_trgm_ops);
@@ -95,12 +95,17 @@ export class UserService {
   async userSearch(search: string) {
     // PROCESS search INPUT HERE
     // @NOTE THIS IS UNSAFE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    const temp = search.match(/[a-zA-Z0-9]/gi);
-    console.log(temp);
+    // const temp = /[a-zA-Z0-9]/.test(search)
+    // console.log(temp);
     // This will work for now, in real-world, indexing + sml_score filter for performance
-    const data = await this.prisma.$queryRaw(
-      `SELECT id,username,similarity(username, '${temp}') AS sml FROM "User" ORDER BY sml DESC LIMIT 5`,
+    let data = [];
+    // if(temp){
+    console.log(search);
+    data = await this.prisma.$queryRaw(
+      'SELECT id,username,similarity(username, $1) AS sml FROM "User" ORDER BY sml DESC LIMIT 5;',
+      search,
     );
+    // }
     // Elasticsearch Probably
     // But this is just a demo anyways
     console.log(data);
