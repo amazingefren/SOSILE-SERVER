@@ -99,7 +99,7 @@ export class PostResolver {
   /* QUERY */
   @Query(() => [Post], { nullable: true })
   @UseGuards(AuthGuard)
-  async findPostById(
+  async findPostByUserId(
     @CurrentUser() currentUserId: number,
     @Fields(PostIncludeOpts) opts: PostIncludeOpts,
     @Args('user', { nullable: true }) requestUserId?: number,

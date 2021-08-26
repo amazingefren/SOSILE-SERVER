@@ -110,7 +110,7 @@ type Query {
   userSearch(where: String!): [User!]!
   findUserByUsername(username: String!): User!
   debugPosts: [Post!]!
-  findPostById(user: Float): [Post!]
+  findPostByUserId(user: Float): [Post!]
   getFeed: [FeedPost!]
   AuthCheck: Boolean!
 }
