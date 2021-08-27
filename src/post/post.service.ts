@@ -142,6 +142,32 @@ export class PostService {
     })) as Post[];
   }
 
+  /*
+   * This function is to prevent selection on post.likes sql to user only,
+   * that way field.liked can be true, when field.likes is also requested
+   */
+  async getLiked(user: number, payload: Post[]) {
+    let postIds = [];
+    payload.forEach((post) => {
+      postIds.push(post.id);
+    });
+    let result = payload;
+    const data = await this.prisma.post.findMany({
+      where: { id: { in: postIds } },
+      select: { likes: { where: { id: user } }, id: true },
+    });
+    data.forEach(({ likes, id: postId }) => {
+      let index = result.map((post) => post.id).indexOf(postId);
+      if (likes[0]?.id === user) {
+        result[index].liked = true;
+      } else {
+        result[index].liked = false;
+      }
+    });
+
+    return result;
+  }
+
   async getFeed(
     user: number,
     include: PostIncludeOpts,

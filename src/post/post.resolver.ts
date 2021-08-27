@@ -104,11 +104,15 @@ export class PostResolver {
     @Fields(PostIncludeOpts) opts: PostIncludeOpts,
     @Args('user', { nullable: true }) requestUserId?: number,
   ) {
-    return await this.postService
+    const payload = await this.postService
       .findUserPosts(requestUserId || currentUserId, opts)
       .catch(() => {
         throw new Error('Not Found');
       });
+    const final = await this.postService.getLiked(currentUserId, payload);
+    console.log(final);
+
+    return final;
   }
 
   @Query(() => [FeedPost], { nullable: true })
