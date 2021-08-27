@@ -76,6 +76,20 @@ async function main() {
   await prisma.user.createMany({
     data: usersPayload,
   });
+  for (const user in usersPayload) {
+    let username = usersPayload[user].username;
+    await prisma.user.update({
+      where: { username },
+      data: {
+        profile: {
+          create: {
+            username,
+            biography: 'DEMO',
+          },
+        },
+      },
+    });
+  }
   for (const post in postsPayload) {
     await prisma.post.create({
       data: {
