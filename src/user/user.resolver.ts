@@ -44,7 +44,7 @@ export class UserResolver {
     });
   }
 
-  @Query(() => Boolean)
+  @Mutation(() => Boolean)
   @UseGuards(AuthGuard)
   async userUnfollow(
     @CurrentUser() user: number,
@@ -78,10 +78,11 @@ export class UserResolver {
   @Query(() => User)
   @UseGuards(AuthGuard)
   async findUserByUsername(
+    @CurrentUser() user: number,
     @Args('username', { nullable: false }) username: string,
     @Fields(UserIncludeOpts) opts: UserIncludeOpts,
   ) {
-    return this.userService.findUser({ username }, opts).catch(() => {
+    return this.userService.findUser({ username }, opts, user).catch(() => {
       throw new Error('Could not find user');
     });
   }

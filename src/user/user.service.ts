@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { User, Prisma } from '@prisma/client';
-import { UserIncludeOpts, UserProfile } from './user.model';
+import { Prisma } from '@prisma/client';
+import { User, UserIncludeOpts, UserProfile } from './user.model';
 // import { UserCreateInput } from './user.model';
 
 @Injectable()
@@ -16,8 +16,21 @@ export class UserService {
   async findUser(
     where: Prisma.UserWhereUniqueInput,
     include: UserIncludeOpts,
+    originalUser?: number,
   ): Promise<User | null> {
-    const user = await this.prisma.user.findUnique({ where, include });
+    let user: User = await this.prisma.user.findUnique({ where, include });
+    // user.followed = await this.prisma.user.findUnique({where, select})
+    console.log(originalUser);
+    // if (
+    const following = await this.prisma.user.findUnique({
+      where,
+      select: { followers: { where: { followerId: originalUser } } },
+    });
+    if (following.followers[0]) {
+      user.followed = true;
+    } else {
+      user.followed = false;
+    }
     return user as User;
   }
 

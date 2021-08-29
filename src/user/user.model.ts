@@ -46,6 +46,8 @@ export class User {
   postLikes?: Post[];
   @Field(() => [Comment], { nullable: true })
   commentLikes?: Comment[];
+  @Field(() => Boolean, { nullable: true })
+  followed?: Boolean;
   @Field(() => [User], { nullable: true })
   following?: User[];
   @Field(() => [User], { nullable: true })
