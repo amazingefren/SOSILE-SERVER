@@ -1,7 +1,6 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { User } from 'src/user/user.model';
 import {
   CreatePostInput,
   Post,
@@ -134,7 +133,15 @@ export class PostService {
   }
 
   async findPost(where: Prisma.PostWhereUniqueInput, include: PostIncludeOpts) {
-    return await this.prisma.post.findUnique({ where, include });
+    const data = await this.prisma.post.findUnique({
+      where,
+      include: {
+        ...include,
+        _count: { select: { comments: true, likes: true } },
+      },
+    });
+    console.log(data);
+    return data;
   }
 
   async findUserPosts(

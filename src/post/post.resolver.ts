@@ -98,11 +98,11 @@ export class PostResolver {
     });
   }
 
-  @Query(() => Post)
+  @Query(() => Post, { nullable: true })
   @UseGuards(AuthGuard)
   async findPost(
     // @CurrentUser() user: number,
-    @Fields() opts: PostIncludeOpts,
+    @Fields(PostIncludeOpts) opts: PostIncludeOpts,
     @Args('id') postId: number,
   ) {
     return this.postService.findPost({ id: postId }, opts).catch(() => {
