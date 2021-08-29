@@ -6,12 +6,14 @@ import {
   PostIncludeOpts,
   CommentIncludeOpts,
   FeedPost,
+  PostWhereInput,
 } from './post.model';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
 import { CurrentUser } from 'src/user/decorators/user.decorator';
 import { PostService } from './post.service';
 import { Fields } from 'src/graphql/fields.decorator';
 import { UseGuards } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 
 @Resolver(() => Post)
 export class PostResolver {
@@ -99,13 +101,13 @@ export class PostResolver {
   /* QUERY */
   @Query(() => [Post], { nullable: true })
   @UseGuards(AuthGuard)
-  async findPostByUserId(
+  async findPostByUser(
     @CurrentUser() currentUserId: number,
     @Fields(PostIncludeOpts) opts: PostIncludeOpts,
-    @Args('user', { nullable: true }) requestUserId?: number,
+    @Args('where', { nullable: true }) where?: PostWhereInput,
   ) {
     const payload = await this.postService
-      .findUserPosts(requestUserId || currentUserId, opts)
+      .findUserPosts(where || { id: currentUserId }, opts)
       .catch(() => {
         throw new Error('Not Found');
       });

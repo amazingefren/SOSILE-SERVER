@@ -111,9 +111,14 @@ type Query {
   userSearch(where: String!): [User!]!
   findUserByUsername(username: String!): User!
   debugPosts: [Post!]!
-  findPostByUserId(user: Float): [Post!]
+  findPostByUser(where: PostWhereInput): [Post!]
   getFeed: [FeedPost!]
   AuthCheck: Boolean!
+}
+
+input PostWhereInput {
+  id: Float
+  username: String
 }
 
 type Mutation {

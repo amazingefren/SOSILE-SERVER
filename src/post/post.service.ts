@@ -1,4 +1,5 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { User } from 'src/user/user.model';
 import {
@@ -132,9 +133,19 @@ export class PostService {
     }
   }
 
-  async findUserPosts(user: number, include: PostIncludeOpts) {
+  async findUserPosts(
+    user: Prisma.UserWhereUniqueInput,
+    include: PostIncludeOpts,
+  ) {
+    let where: Prisma.PostWhereInput;
+    if (user.id) {
+      where = { authorId: user.id };
+    }
+    if (user.username) {
+      where = { author: { username: user.username } };
+    }
     return (await this.prisma.post.findMany({
-      where: { authorId: user },
+      where,
       include: {
         ...include,
         _count: { select: { likes: true, comments: true } },

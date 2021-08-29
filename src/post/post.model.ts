@@ -113,3 +113,11 @@ export class FeedPost {
   @Field(() => PostCount, { nullable: true })
   _count?: PostCount;
 }
+
+@InputType()
+export class PostWhereInput {
+  @Field(() => Number, { nullable: true })
+  id?: number;
+  @Field(() => String, { nullable: true })
+  username?: string;
+}
