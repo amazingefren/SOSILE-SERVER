@@ -111,6 +111,7 @@ type Query {
   userSearch(where: String!): [User!]!
   findUserByUsername(username: String!): User!
   debugPosts: [Post!]!
+  findPost(id: Float!): Post!
   findPostByUser(where: PostWhereInput): [Post!]
   getFeed: [FeedPost!]
   AuthCheck: Boolean!

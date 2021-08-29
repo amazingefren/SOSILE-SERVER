@@ -98,6 +98,18 @@ export class PostResolver {
     });
   }
 
+  @Query(() => Post)
+  @UseGuards(AuthGuard)
+  async findPost(
+    // @CurrentUser() user: number,
+    @Fields() opts: PostIncludeOpts,
+    @Args('id') postId: number,
+  ) {
+    return this.postService.findPost({ id: postId }, opts).catch(() => {
+      throw new Error('Not Found');
+    });
+  }
+
   /* QUERY */
   @Query(() => [Post], { nullable: true })
   @UseGuards(AuthGuard)

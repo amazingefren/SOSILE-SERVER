@@ -133,6 +133,10 @@ export class PostService {
     }
   }
 
+  async findPost(where: Prisma.PostWhereUniqueInput, include: PostIncludeOpts) {
+    return await this.prisma.post.findUnique({ where, include });
+  }
+
   async findUserPosts(
     user: Prisma.UserWhereUniqueInput,
     include: PostIncludeOpts,
