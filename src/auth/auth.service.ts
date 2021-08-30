@@ -5,7 +5,6 @@ import {
   AuthRegisterUserInput,
   AuthUser,
 } from './auth.model';
-import { User } from '../user/user.model';
 import { ConfigService } from '@nestjs/config';
 import { AuthConfig, DevelopmentConfig } from '../config/configuration';
 import { FastifyReply } from 'fastify';
@@ -13,6 +12,7 @@ import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
 import { UserInputError } from 'apollo-server-fastify';
 import { Prisma } from '@prisma/client';
+import { JsonWebTokenError } from 'jsonwebtoken';
 
 @Injectable()
 export class AuthService {
@@ -151,7 +151,7 @@ export class AuthService {
         date: tokenTable.timestamp,
       },
       this.CONFIG.rtSecret,
-      { expiresIn: '1d' },
+      { expiresIn: '12h' },
     );
     // Assign JWT Token to empty entity
     const final = await this.prisma.rToken.update({
@@ -236,9 +236,18 @@ export class AuthService {
     },
   ): Promise<boolean | AuthUser> {
     const token = this.adjustRefreshToken(unformattedToken);
-    const jwtPayload: any = jwt.verify(token, this.CONFIG.rtSecret, {
-      // ignoreExpiration: true,
-    });
+    let jwtPayload: any;
+    try {
+      jwtPayload = jwt.verify(token, this.CONFIG.rtSecret, {
+        // ignoreExpiration: true,
+      });
+    } catch (e) {
+      if (e instanceof jwt.TokenExpiredError) {
+        this.logger.debug('refresh_token expired, wiping');
+        await this.wipeToken(unformattedToken);
+      }
+      return false;
+    }
     try {
       const data = await this.prisma.rToken.findUnique({
         where: {
