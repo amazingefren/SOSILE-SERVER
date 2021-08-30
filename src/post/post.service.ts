@@ -215,8 +215,22 @@ export class PostService {
     user: number,
     include: PostIncludeOpts,
   ): Promise<FeedPost[] | null> {
+    const targets = await this.prisma.follow
+      .findMany({
+        where: { followerId: user },
+        select: { followingId: true },
+      })
+      .then((d) => {
+        let targetIds: number[] = d.flatMap(({ followingId }) => followingId);
+        targetIds.push(user as number);
+        return targetIds;
+      });
+    console.log(targets);
     let data = await this.prisma.post.findMany({
-      where: { author: { followers: { some: { followerId: user } } } },
+      // where: { author: { followers: { some: { followerId: user } } } },
+      where: {
+        authorId: { in: targets },
+      },
       include: {
         ...include,
         likes: { where: { id: user } },
@@ -226,8 +240,9 @@ export class PostService {
         },
       },
       orderBy: { date: 'desc' },
-      take: 12,
+      // take: 30,
     });
+    console.log(data);
 
     let searchUsers = {};
     data.forEach((item, index) => {
