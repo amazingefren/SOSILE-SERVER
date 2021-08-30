@@ -114,7 +114,6 @@ export class PostResolver {
           true,
         );
       }
-      console.log(final[0]);
       return final[0];
     } catch {
       throw new Error('Not Found');

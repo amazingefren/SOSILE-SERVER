@@ -132,12 +132,29 @@ export class PostService {
     }
   }
 
+  private async getComments(payload: Comment[]) {
+    let result = await this.prisma.comment.findMany({
+      where: { id: { in: payload.flatMap(({ id }) => id) } },
+      include: {
+        _count: true,
+        author: true,
+      },
+    });
+
+    // @TODO test
+    result.sort(
+      ({ _count: { likes } }, { _count: { likes: likes2 } }) => likes - likes2,
+    );
+
+    return result;
+  }
+
   async getPost(where: Prisma.PostWhereUniqueInput, include: PostIncludeOpts) {
     let comments: any = false;
     if (include.comments) {
-      comments = { include: { author: true } };
+      comments = { select: { id: true } };
     }
-    const data = await this.prisma.post.findUnique({
+    let data: Post = await this.prisma.post.findUnique({
       where,
       include: {
         ...include,
@@ -145,7 +162,11 @@ export class PostService {
         _count: { select: { comments: true, likes: true } },
       },
     });
-    console.log(data);
+
+    if (include.comments) {
+      data.comments = await this.getComments(data.comments);
+    }
+
     return data;
   }
 
@@ -225,7 +246,6 @@ export class PostService {
         targetIds.push(user as number);
         return targetIds;
       });
-    console.log(targets);
     let data = await this.prisma.post.findMany({
       // where: { author: { followers: { some: { followerId: user } } } },
       where: {
@@ -242,17 +262,13 @@ export class PostService {
       orderBy: { date: 'desc' },
       // take: 30,
     });
-    console.log(data);
 
     let searchUsers = {};
     data.forEach((item, index) => {
-      /* console.log(item)
-      console.log(index) */
       searchUsers[item.author.id] = searchUsers[item.author.id]
         ? [...searchUsers[item.authorId], index]
         : [index];
     });
-    // console.log(searchUsers)
 
     /* half the time of all 30 methods i've tried */
     /* I spent way too long on this and probably isn't even worth it */
