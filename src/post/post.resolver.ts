@@ -13,7 +13,6 @@ import { CurrentUser } from 'src/user/decorators/user.decorator';
 import { PostService } from './post.service';
 import { Fields } from 'src/graphql/fields.decorator';
 import { UseGuards } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
 
 @Resolver(() => Post)
 export class PostResolver {
@@ -101,13 +100,17 @@ export class PostResolver {
   @Query(() => Post, { nullable: true })
   @UseGuards(AuthGuard)
   async findPost(
-    // @CurrentUser() user: number,
+    @CurrentUser() userId: number,
     @Fields(PostIncludeOpts) opts: PostIncludeOpts,
     @Args('id') postId: number,
   ) {
-    return this.postService.findPost({ id: postId }, opts).catch(() => {
+    try {
+      const post = await this.postService.findPost({ id: postId }, opts);
+      const final = await this.postService.getLiked(userId, [post]);
+      return final[0];
+    } catch {
       throw new Error('Not Found');
-    });
+    }
   }
 
   /* QUERY */
