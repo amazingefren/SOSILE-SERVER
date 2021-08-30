@@ -37,6 +37,7 @@ type Comment {
   likes: [User!]
   author: User
   post: Post
+  liked: Boolean
   _count: CommentCount
 }
 

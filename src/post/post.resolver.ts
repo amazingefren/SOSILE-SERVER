@@ -105,8 +105,16 @@ export class PostResolver {
     @Args('id') postId: number,
   ) {
     try {
-      const post = await this.postService.findPost({ id: postId }, opts);
-      const final = await this.postService.getLiked(userId, [post]);
+      const post: Post = await this.postService.getPost({ id: postId }, opts);
+      let final = (await this.postService.getLiked(userId, [post])) as Post[];
+      if (opts.comments) {
+        final[0].comments = await this.postService.getLiked(
+          userId,
+          post.comments,
+          true,
+        );
+      }
+      console.log(final[0]);
       return final[0];
     } catch {
       throw new Error('Not Found');

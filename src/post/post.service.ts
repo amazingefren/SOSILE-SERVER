@@ -132,11 +132,16 @@ export class PostService {
     }
   }
 
-  async findPost(where: Prisma.PostWhereUniqueInput, include: PostIncludeOpts) {
+  async getPost(where: Prisma.PostWhereUniqueInput, include: PostIncludeOpts) {
+    let comments: any = false;
+    if (include.comments) {
+      comments = { include: { author: true } };
+    }
     const data = await this.prisma.post.findUnique({
       where,
       include: {
         ...include,
+        comments,
         _count: { select: { comments: true, likes: true } },
       },
     });
@@ -168,18 +173,27 @@ export class PostService {
    * This function is to prevent selection on post.likes sql to user only,
    * that way field.liked can be true, when field.likes is also requested
    */
-  async getLiked(user: number, payload: Post[]) {
+  async getLiked(
+    user: number,
+    payload: Post[] | Comment[],
+    comment: boolean = false,
+  ): Promise<Post[] | Comment[]> {
     let postIds = [];
-    payload.forEach((post) => {
+    payload.forEach((post: Post | Comment) => {
       postIds.push(post.id);
     });
     let result = payload;
-    const data = await this.prisma.post.findMany({
-      where: { id: { in: postIds } },
-      select: { likes: { where: { id: user } }, id: true },
-    });
+    const data = comment
+      ? await this.prisma.comment.findMany({
+          where: { id: { in: postIds } },
+          select: { likes: { where: { id: user } }, id: true },
+        })
+      : await this.prisma.post.findMany({
+          where: { id: { in: postIds } },
+          select: { likes: { where: { id: user } }, id: true },
+        });
     data.forEach(({ likes, id: postId }) => {
-      let index = result.map((post) => post.id).indexOf(postId);
+      let index = result.map((post: Post | Comment) => post.id).indexOf(postId);
       if (likes[0]?.id === user) {
         result[index].liked = true;
       } else {
@@ -187,8 +201,15 @@ export class PostService {
       }
     });
 
-    return result;
+    return comment ? (result as Comment[]) : (result as Post[]);
   }
+
+  /* async getComments(postId: number) {
+    return await this.prisma.comment.findMany({
+      where: { postId },
+      include: { _count: true, author: true, likes: true },
+    });
+  } */
 
   async getFeed(
     user: number,

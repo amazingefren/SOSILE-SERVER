@@ -64,6 +64,8 @@ export class Comment {
   author?: User;
   @Field(() => Post, { nullable: true })
   post?: Post;
+  @Field(() => Boolean, { nullable: true })
+  liked?: Boolean;
   @Field(() => CommentCount, { nullable: true })
   _count?: CommentCount;
 }
