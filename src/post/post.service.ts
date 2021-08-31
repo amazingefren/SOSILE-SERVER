@@ -203,6 +203,7 @@ export class PostService {
         ...include,
         _count: { select: { likes: true, comments: true } },
       },
+      orderBy: { date: 'desc' },
     })) as Post[];
   }
 
