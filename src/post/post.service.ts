@@ -1,5 +1,5 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import {
   CreatePostInput,
@@ -77,21 +77,26 @@ export class PostService {
     }
   }
 
-  async togglePostLike(user: number, postId: number): Promise<Boolean | null> {
-    const liked = await this.prisma.post.findUnique({
+  async togglePostLike(
+    user: number,
+    postId: number,
+    isComment?: boolean,
+  ): Promise<Boolean | null> {
+    const prisma: any = isComment ? this.prisma.comment : this.prisma.post;
+    const liked = await prisma.findUnique({
       where: { id: postId },
       select: { likes: { where: { id: user } } },
     });
 
     if (liked.likes[0]) {
-      await this.prisma.post.update({
+      await prisma.update({
         where: { id: postId },
         data: { likes: { disconnect: { id: user } } },
         include: { likes: true },
       });
       return false;
     } else {
-      await this.prisma.post.update({
+      await prisma.update({
         where: { id: postId },
         data: { likes: { connect: { id: user } } },
         include: { likes: true },
