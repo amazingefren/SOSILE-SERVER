@@ -75,6 +75,9 @@ export class PostService {
       include: { author: true },
     });
     if (check.authorId == user) {
+      if (!isComment) {
+        await this.prisma.comment.deleteMany({ where: { postId } });
+      }
       //@ts-ignore
       await prisma.delete({
         where: { id: postId },
