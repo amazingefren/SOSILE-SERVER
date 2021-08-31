@@ -128,8 +128,8 @@ type Mutation {
   userUnfollow(user: Float!): Boolean!
   createPost(data: CreatePostInput!): Post!
   editPost(postId: Float!, data: CreatePostInput!): Post!
-  deletePost(postId: Float!): Boolean!
-  postLikeToggle(postId: Float!): Boolean!
+  deletePost(comment: Boolean!, postId: Float!): Boolean!
+  postLikeToggle(comment: Boolean, postId: Float!): Boolean!
   createComment(postId: Float!, data: CreatePostInput!): Comment!
   deleteComment(commentId: Float!): Boolean!
   AuthRegisterUser(data: AuthRegisterUserInput!): AuthUser!

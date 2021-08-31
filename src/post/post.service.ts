@@ -62,13 +62,21 @@ export class PostService {
     }
   }
 
-  async deletePost(user: number, postId: number): Promise<boolean> {
-    const check = await this.prisma.post.findUnique({
+  async deletePost(
+    user: number,
+    postId: number,
+    isComment: boolean,
+  ): Promise<boolean> {
+    // @TODO: union prisma <comment+post>
+    const prisma = isComment ? this.prisma.comment : this.prisma.post;
+    //@ts-ignore
+    const check = await prisma.findUnique({
       where: { id: postId },
       include: { author: true },
     });
     if (check.authorId == user) {
-      await this.prisma.post.delete({
+      //@ts-ignore
+      await prisma.delete({
         where: { id: postId },
       });
       return true;

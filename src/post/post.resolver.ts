@@ -54,8 +54,9 @@ export class PostResolver {
   async deletePost(
     @CurrentUser() user: number,
     @Args('postId') postId: number,
+    @Args('comment') isComment: boolean,
   ) {
-    return this.postService.deletePost(user, postId).catch(() => {
+    return this.postService.deletePost(user, postId, isComment).catch(() => {
       throw new Error('Not Found');
     });
   }
@@ -65,10 +66,13 @@ export class PostResolver {
   async postLikeToggle(
     @CurrentUser() user: number,
     @Args('postId') postId: number,
+    @Args('comment', { nullable: true }) isComment: boolean = false,
   ) {
-    return await this.postService.togglePostLike(user, postId).catch(() => {
-      throw new Error('Not Found');
-    });
+    return await this.postService
+      .togglePostLike(user, postId, isComment)
+      .catch(() => {
+        throw new Error('Not Found');
+      });
   }
 
   @Mutation(() => Comment)
