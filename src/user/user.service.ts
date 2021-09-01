@@ -115,7 +115,8 @@ export class UserService {
     // if(temp){
     console.log(search);
     data = await this.prisma.$queryRaw(
-      'SELECT id,username,similarity(username, $1) AS sml FROM "User" ORDER BY sml DESC LIMIT 5;',
+      // 'SELECT id,username,similarity(username, $1) AS sml FROM "User" ORDER BY sml DESC LIMIT 5;',
+      'SELECT * FROM (SELECT *, similarity(username, $1) AS sml FROM "User" ORDER BY sml DESC LIMIT 5) AS "USER" WHERE "USER".sml>0.05;',
       search,
     );
     // }
