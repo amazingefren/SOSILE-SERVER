@@ -2,10 +2,10 @@ import 'reflect-metadata';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { User, UserIncludeOpts, UserProfile } from './user.model';
 import { UserService } from './user.service';
-import { AuthGuard } from 'src/auth/guards/auth.guard';
+import { AuthGuard } from 'auth/guards/auth.guard';
 import { UseGuards } from '@nestjs/common';
 import { CurrentUser } from './decorators/user.decorator';
-import { Fields } from 'src/graphql/fields.decorator';
+import { Fields } from 'graphql/fields.decorator';
 
 @Resolver(User)
 export class UserResolver {

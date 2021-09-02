@@ -8,10 +8,10 @@ import {
   FeedPost,
   PostWhereInput,
 } from './post.model';
-import { AuthGuard } from 'src/auth/guards/auth.guard';
-import { CurrentUser } from 'src/user/decorators/user.decorator';
+import { AuthGuard } from 'auth/guards/auth.guard';
+import { CurrentUser } from 'user/decorators/user.decorator';
 import { PostService } from './post.service';
-import { Fields } from 'src/graphql/fields.decorator';
+import { Fields } from 'graphql/fields.decorator';
 import { UseGuards } from '@nestjs/common';
 
 @Resolver(() => Post)
