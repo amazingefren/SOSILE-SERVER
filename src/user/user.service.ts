@@ -98,12 +98,10 @@ export class UserService {
   }
 
   /** @IMPORTANT
-   * SHOW search_paths
-   * SET search_paths TO {schema name} // i'm using "PUBLIC"
+   * SHOW search_path
+   * SET search_path TO {schema name} // i'm using "PUBLIC"
    * CREATE EXTENSION pg_trgm
-   * SET pg_trgm.similarity_threshold = 0.8;
    * CREATE INDEX CONCURRENTLY index_user_on_username_trigram ON "User" USING gin (username gin_trgm_ops);
-   * SELECT {} FROM "User" WHERE username iLIKE '%wha%te%ver%';
    */
   async userSearch(search: string) {
     // PROCESS search INPUT HERE
