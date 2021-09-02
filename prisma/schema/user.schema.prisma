@@ -24,6 +24,8 @@ model User {
 
   postLikes     Post[]    @relation(name: "likedBy")
   commentLikes  Comment[] @relation(name: "commentLiked")
+
+  @@index([username], name: "index_users_on_username_trigram")
 }
 
 model Follow {
