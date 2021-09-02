@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  prod:
+    container_name: sosile_server_prod
+    image: sosile_server_prod:0.0.1
+    build:
+      context: .
+      target: production
+      dockerfile: ./Dockerfile
+    command: node dist/main.js
+    depends_on:
+      - sosile_pgsql
+    ports:
+      - '${PORT}:8000'
+    volumes:
+      - .:/usr/src/sosile-server
+    networks:
+      - sosile_server-network
+    restart: unless-stopped
+  sosile_pgsql:
+    image: postgres:latest
+    container_name: sosile_server_pgsql
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRES_USER=prisma
+      - POSTGRES_PASSWORD=prisma
+    volumes:
+      - sosile_server_pgsql-data:/data
+    networks:
+      - sosile_server-network
+
+volumes:
+  sosile_server_pgsql-data:
+
+networks:
+  sosile_server-network:
+    driver: bridge
