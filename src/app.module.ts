@@ -24,6 +24,7 @@ import configuration from './config/configuration';
       debug: true,
       context: ({ request, reply }) => ({ req: request, res: reply }),
       playground: false,
+      introspection: process.env.NODE_ENV !== 'production',
       cors: {
         origin: 'http://localhost:3000',
         credentials: true,
