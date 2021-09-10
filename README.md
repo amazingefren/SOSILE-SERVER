@@ -1,3 +1,1 @@
-# SOSILE
-## SERVER
-### Hello World
+# [SOSILE](https://sosile.amazingefren.com/)
